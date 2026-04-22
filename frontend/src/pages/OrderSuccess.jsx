@@ -31,33 +31,44 @@ function OrderSuccess() {
               </h2>
 
               <p className="mb-2">
+                <span className="font-semibold">Order ID:</span> #{lastOrder.id}
+              </p>
+
+              <p className="mb-2">
                 <span className="font-semibold">Customer:</span>{" "}
-                {lastOrder.customer.fullName}
+                {lastOrder.full_name}
               </p>
 
               <p className="mb-2">
                 <span className="font-semibold">Phone:</span>{" "}
-                {lastOrder.customer.phoneNumber}
+                {lastOrder.phone_number}
               </p>
 
               <p className="mb-2">
                 <span className="font-semibold">Address:</span>{" "}
-                {lastOrder.customer.address}, {lastOrder.customer.city}
+                {lastOrder.address}, {lastOrder.city}
+              </p>
+
+              <p className="mb-2">
+                <span className="font-semibold">Status:</span>{" "}
+                <span className="text-blue-600 font-semibold">
+                  {lastOrder.status}
+                </span>
               </p>
 
               <p className="mb-4">
                 <span className="font-semibold">Total:</span>{" "}
                 <span className="text-green-600 font-bold">
-                  UGX {Number(lastOrder.total).toLocaleString()}
+                  UGX {Number(lastOrder.total_amount).toLocaleString()}
                 </span>
               </p>
 
               <div>
                 <p className="font-semibold mb-2">Items:</p>
                 <ul className="space-y-2">
-                  {lastOrder.items.map((item) => (
-                    <li key={item.id} className="text-gray-700">
-                      {item.name} × {item.quantity}
+                  {lastOrder.items.map((item, index) => (
+                    <li key={index} className="text-gray-700">
+                      {item.product_name} × {item.quantity}
                     </li>
                   ))}
                 </ul>

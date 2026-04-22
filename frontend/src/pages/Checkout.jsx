@@ -4,6 +4,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import FloatingWhatsAppButton from "../components/FloatingWhatsAppButton";
 import { useCart } from "../context/CartContext";
+import api from "../api/api";
 
 function Checkout() {
   const { cartItems, cartTotal, clearCart } = useCart();
@@ -19,6 +20,7 @@ function Checkout() {
   });
 
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
@@ -27,7 +29,7 @@ function Checkout() {
     });
   };
 
-  const handlePlaceOrder = (e) => {
+  const handlePlaceOrder = async (e) => {
     e.preventDefault();
 
     if (
@@ -45,16 +47,34 @@ function Checkout() {
       return;
     }
 
-    const orderData = {
-      customer: formData,
-      items: cartItems,
-      total: cartTotal,
-      createdAt: new Date().toISOString(),
+    setLoading(true);
+    setError("");
+
+    const payload = {
+      full_name: formData.fullName,
+      phone_number: formData.phoneNumber,
+      email: formData.email,
+      address: formData.address,
+      city: formData.city,
+      notes: formData.notes,
+      items: cartItems.map((item) => ({
+        id: item.id,
+        quantity: item.quantity,
+      })),
     };
 
-    localStorage.setItem("kubiz-last-order", JSON.stringify(orderData));
-    clearCart();
-    navigate("/order-success");
+    try {
+      const response = await api.post("orders/", payload);
+
+      localStorage.setItem("kubiz-last-order", JSON.stringify(response.data));
+      clearCart();
+      navigate("/order-success");
+    } catch (err) {
+      console.error(err);
+      setError("Failed to place order. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -182,9 +202,10 @@ function Checkout() {
 
               <button
                 type="submit"
-                className="w-full bg-blue-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-700 transition"
+                disabled={loading}
+                className="w-full bg-blue-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-700 transition disabled:opacity-50"
               >
-                Place Order
+                {loading ? "Placing Order..." : "Place Order"}
               </button>
             </form>
 
