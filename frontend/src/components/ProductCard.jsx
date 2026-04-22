@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 function ProductCard({ product }) {
   const imageUrl = product.image
     ? product.image.startsWith("http")
@@ -26,11 +28,11 @@ function ProductCard({ product }) {
           {product.category_name}
         </p>
 
-        <h3 className="text-xl font-bold text-gray-800 mb-2 line-clamp-2">
+        <h3 className="text-xl font-bold text-gray-800 mb-2">
           {product.name}
         </h3>
 
-        <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+        <p className="text-gray-600 text-sm mb-4">
           {product.description || "No description available."}
         </p>
 
@@ -45,9 +47,12 @@ function ProductCard({ product }) {
         </div>
 
         <div className="flex gap-3">
-          <button className="flex-1 bg-blue-600 text-white py-2.5 rounded-xl font-semibold hover:bg-blue-700 transition">
+          <Link
+            to={`/products/${product.slug}`}
+            className="flex-1 text-center bg-blue-600 text-white py-2.5 rounded-xl font-semibold hover:bg-blue-700 transition"
+          >
             View Details
-          </button>
+          </Link>
 
           <button className="flex-1 border border-blue-600 text-blue-600 py-2.5 rounded-xl font-semibold hover:bg-blue-50 transition">
             Order Now
