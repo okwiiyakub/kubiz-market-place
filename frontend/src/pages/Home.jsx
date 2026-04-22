@@ -11,6 +11,7 @@ function Home() {
   const [message, setMessage] = useState("Loading...");
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -29,19 +30,25 @@ function Home() {
       .catch(() => {
         setError("Failed to load categories.");
       });
+  }, []);
 
-    api.get("products/")
+  useEffect(() => {
+    const endpoint = searchTerm
+      ? `products/?search=${encodeURIComponent(searchTerm)}`
+      : "products/";
+
+    api.get(endpoint)
       .then((response) => {
         setProducts(response.data);
       })
       .catch(() => {
         setError("Failed to load products.");
       });
-  }, []);
+  }, [searchTerm]);
 
   return (
     <div className="bg-gray-50 min-h-screen">
-      <Navbar />
+      <Navbar onSearch={setSearchTerm} />
       <Hero />
 
       <main className="max-w-7xl mx-auto px-6 py-14">
@@ -76,16 +83,22 @@ function Home() {
                 Fresh listings
               </p>
               <h2 className="text-3xl font-extrabold text-gray-900">
-                Available Products
+                {searchTerm ? `Search Results for "${searchTerm}"` : "Available Products"}
               </h2>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
+          {products.length === 0 ? (
+            <div className="bg-white rounded-2xl p-8 text-center text-gray-600 shadow-sm border border-gray-100">
+              No products found for your search.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+              {products.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          )}
         </section>
       </main>
 
