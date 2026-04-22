@@ -4,12 +4,14 @@ import api from "../api/api";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import FloatingWhatsAppButton from "../components/FloatingWhatsAppButton";
+import { useCart } from "../context/CartContext";
 
 function ProductDetail() {
   const { slug } = useParams();
   const [product, setProduct] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const { addToCart } = useCart();
 
   useEffect(() => {
     api.get(`products/${slug}/`)
@@ -120,8 +122,11 @@ function ProductDetail() {
             </div>
 
             <div className="flex flex-wrap gap-4">
-              <button className="bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-700 transition">
-                Order Now
+              <button
+                  onClick={() => addToCart(product)}
+                  className="bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-700 transition"
+                >
+                  Add to Cart
               </button>
 
               <a

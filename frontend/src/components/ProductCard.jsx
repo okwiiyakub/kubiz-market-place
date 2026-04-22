@@ -1,6 +1,9 @@
 import { Link } from "react-router-dom";
+import { useCart } from "../context/CartContext";
 
 function ProductCard({ product }) {
+  const { addToCart } = useCart();
+
   const imageUrl = product.image
     ? product.image.startsWith("http")
       ? product.image
@@ -54,8 +57,11 @@ function ProductCard({ product }) {
             View Details
           </Link>
 
-          <button className="flex-1 border border-blue-600 text-blue-600 py-2.5 rounded-xl font-semibold hover:bg-blue-50 transition">
-            Order Now
+          <button
+            onClick={() => addToCart(product)}
+            className="flex-1 border border-blue-600 text-blue-600 py-2.5 rounded-xl font-semibold hover:bg-blue-50 transition"
+          >
+            Add to Cart
           </button>
         </div>
       </div>
