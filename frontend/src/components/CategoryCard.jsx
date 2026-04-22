@@ -1,6 +1,9 @@
-function CategoryCard({ category }) {
+function CategoryCard({ category, onSelectCategory }) {
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-lg hover:-translate-y-1 transition">
+    <button
+      onClick={() => onSelectCategory(category.slug)}
+      className="w-full text-left bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-lg hover:-translate-y-1 transition"
+    >
       <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center mb-4">
         <span className="text-blue-600 font-bold text-lg">
           {category.name.charAt(0)}
@@ -14,7 +17,7 @@ function CategoryCard({ category }) {
       <p className="text-gray-600 text-sm leading-6">
         {category.description || "Browse products and offers in this category."}
       </p>
-    </div>
+    </button>
   );
 }
 
