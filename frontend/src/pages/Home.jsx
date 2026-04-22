@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
 import api from "../api/api";
+import Navbar from "../components/Navbar";
+import Hero from "../components/Hero";
+import CategoryCard from "../components/CategoryCard";
+import ProductCard from "../components/ProductCard";
+import Footer from "../components/Footer";
 
 function Home() {
   const [message, setMessage] = useState("Loading...");
@@ -8,7 +13,6 @@ function Home() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    // Load welcome message
     api.get("welcome/")
       .then((response) => {
         setMessage(response.data.message);
@@ -17,7 +21,6 @@ function Home() {
         setError("Failed to load welcome message.");
       });
 
-    // Load categories
     api.get("categories/")
       .then((response) => {
         setCategories(response.data);
@@ -26,7 +29,6 @@ function Home() {
         setError("Failed to load categories.");
       });
 
-    // Load products
     api.get("products/")
       .then((response) => {
         setProducts(response.data);
@@ -37,109 +39,56 @@ function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-100 px-6 py-10">
-      <div className="max-w-6xl mx-auto">
+    <div className="bg-gray-50 min-h-screen">
+      <Navbar />
+      <Hero />
 
-        {/* Page Title */}
-        <h1 className="text-4xl font-bold text-blue-600 mb-3">
-          Kubiz Market Place Home Page
-        </h1>
+      <main className="max-w-7xl mx-auto px-6 py-14">
+        <div className="mb-10">
+          <p className="text-gray-500 text-lg">{message}</p>
+          {error && <p className="text-red-600 mt-2">{error}</p>}
+        </div>
 
-        {/* Welcome Message */}
-        <p className="text-lg text-gray-700 mb-10">{message}</p>
+        <section className="mb-16">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <p className="text-blue-600 font-semibold uppercase tracking-wide text-sm">
+                Browse with ease
+              </p>
+              <h2 className="text-3xl font-extrabold text-gray-900">
+                Shop by Categories
+              </h2>
+            </div>
+          </div>
 
-        {error && (
-          <p className="text-red-600 mb-6">{error}</p>
-        )}
-
-        {/* Categories Section */}
-        <section className="mb-14">
-          <h2 className="text-2xl font-semibold mb-6 text-gray-800">
-            Shop by Categories
-          </h2>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {categories.map((category) => (
-              <div
-                key={category.id}
-                className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition"
-              >
-                <h3 className="text-xl font-bold text-blue-600 mb-2">
-                  {category.name}
-                </h3>
-
-                <p className="text-gray-600">
-                  {category.description || "No description available."}
-                </p>
-              </div>
+              <CategoryCard key={category.id} category={category} />
             ))}
           </div>
         </section>
 
-        {/* Products Section */}
         <section>
-          <h2 className="text-2xl font-semibold mb-6 text-gray-800">
-            Available Products
-          </h2>
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <p className="text-blue-600 font-semibold uppercase tracking-wide text-sm">
+                Fresh listings
+              </p>
+              <h2 className="text-3xl font-extrabold text-gray-900">
+                Available Products
+              </h2>
+            </div>
+          </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {products.map((product) => (
-
-              <div
-                key={product.id}
-                className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition"
-              >
-
-                {/* Product Image */}
-                {product.image ? (
-                  <img
-                    src={
-                      product.image.startsWith("http")
-                        ? product.image
-                        : `http://127.0.0.1:8000${product.image}`
-                    }
-                    alt={product.name}
-                    className="w-full h-48 object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-48 bg-gray-200 flex items-center justify-center text-gray-500">
-                    No Image Available
-                  </div>
-                )}
-
-                {/* Product Details */}
-                <div className="p-6">
-
-                  <h3 className="text-xl font-bold text-blue-600 mb-2">
-                    {product.name}
-                  </h3>
-
-                  <p className="text-sm text-gray-500 mb-2">
-                    Category: {product.category_name}
-                  </p>
-
-                  <p className="text-gray-600 mb-3">
-                    {product.description || "No description available."}
-                  </p>
-
-                  <p className="text-lg font-semibold text-green-600 mb-2">
-                    UGX {Number(product.price).toLocaleString()}
-                  </p>
-
-                  <p className="text-sm text-gray-500">
-                    Stock: {product.stock_quantity}
-                  </p>
-
-                </div>
-              </div>
-
+              <ProductCard key={product.id} product={product} />
             ))}
-
           </div>
         </section>
+      </main>
 
-      </div>
+      <Footer />
     </div>
   );
 }
