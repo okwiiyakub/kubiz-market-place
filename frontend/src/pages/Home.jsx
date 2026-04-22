@@ -5,6 +5,7 @@ import Hero from "../components/Hero";
 import CategoryCard from "../components/CategoryCard";
 import ProductCard from "../components/ProductCard";
 import Footer from "../components/Footer";
+import FloatingWhatsAppButton from "../components/FloatingWhatsAppButton";
 
 function Home() {
   const [message, setMessage] = useState("Loading...");
@@ -89,6 +90,7 @@ function Home() {
       </main>
 
       <Footer />
+      <FloatingWhatsAppButton />
     </div>
   );
 }

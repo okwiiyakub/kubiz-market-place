@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import api from "../api/api";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import FloatingWhatsAppButton from "../components/FloatingWhatsAppButton";
 
 function ProductDetail() {
   const { slug } = useParams();
@@ -59,6 +60,12 @@ function ProductDetail() {
       ? product.image
       : `http://127.0.0.1:8000${product.image}`
     : null;
+
+  const whatsappNumber = "256783372406"; 
+
+  const whatsappMessage = `Hello, I am interested in ${product.name} on Kubiz Market Place. Please share more details. Price seen: UGX ${Number(product.price).toLocaleString()}.`;
+
+  const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -117,15 +124,21 @@ function ProductDetail() {
                 Order Now
               </button>
 
-              <button className="border border-green-600 text-green-600 px-6 py-3 rounded-xl font-semibold hover:bg-green-50 transition">
+              <a
+                href={whatsappLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="border border-green-600 text-green-600 px-6 py-3 rounded-xl font-semibold hover:bg-green-50 transition"
+              >
                 Chat on WhatsApp
-              </button>
+              </a>
             </div>
           </div>
         </div>
       </main>
 
       <Footer />
+        <FloatingWhatsAppButton />
     </div>
   );
 }
