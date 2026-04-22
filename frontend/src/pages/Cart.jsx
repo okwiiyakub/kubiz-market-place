@@ -116,9 +116,12 @@ function Cart() {
                 </span>
               </div>
 
-              <button className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition mb-4">
-                Proceed to Checkout
-              </button>
+              <Link
+                  to="/checkout"
+                  className="block w-full text-center bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition mb-4"
+                >
+                  Proceed to Checkout
+              </Link>
 
               <button
                 onClick={clearCart}
