@@ -49,18 +49,21 @@ function Navbar({ onSearch }) {
 
           <div className="flex items-center gap-6">
             <nav className="hidden md:flex items-center gap-6">
-              <Link to="/" className="text-gray-700 hover:text-blue-600 font-medium">
-                Home
-              </Link>
-              <a href="#" className="text-gray-700 hover:text-blue-600 font-medium">
-                Categories
-              </a>
-              <a href="#" className="text-gray-700 hover:text-blue-600 font-medium">
-                Products
-              </a>
-              <a href="#" className="text-gray-700 hover:text-blue-600 font-medium">
-                Services
-              </a>
+            <Link to="/" className="text-gray-700 hover:text-blue-600 font-medium">
+              Home
+            </Link>
+            <Link to="/dashboard" className="text-gray-700 hover:text-blue-600 font-medium">
+              Dashboard
+            </Link>
+            <a href="#" className="text-gray-700 hover:text-blue-600 font-medium">
+              Categories
+            </a>
+            <a href="#" className="text-gray-700 hover:text-blue-600 font-medium">
+              Products
+            </a>
+            <a href="#" className="text-gray-700 hover:text-blue-600 font-medium">
+              Services
+            </a>
             </nav>
 
             <Link
