@@ -42,7 +42,7 @@ function Dashboard() {
     );
   }
 
-  const cards = [
+  const orderCards = [
     { label: "Total Orders", value: summary.total_orders },
     { label: "Pending Orders", value: summary.pending_orders },
     { label: "Confirmed Orders", value: summary.confirmed_orders },
@@ -51,79 +51,155 @@ function Dashboard() {
     { label: "Cancelled Orders", value: summary.cancelled_orders },
   ];
 
+  const productCards = [
+    { label: "Total Products", value: summary.total_products },
+    { label: "Active Products", value: summary.active_products },
+    { label: "Inactive Products", value: summary.inactive_products },
+    { label: "Low Stock Products", value: summary.low_stock_products },
+  ];
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
 
       <main className="max-w-7xl mx-auto px-6 py-12">
+
+        {/* HEADER */}
         <div className="mb-10">
           <p className="text-blue-600 font-semibold uppercase tracking-wide text-sm">
             Business Overview
           </p>
           <h1 className="text-4xl font-extrabold text-gray-900">
-            Dashboard
+            Marketplace Dashboard
           </h1>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-          {cards.map((card, index) => (
-            <div
-              key={index}
-              className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6"
-            >
-              <p className="text-gray-500 text-sm mb-2">{card.label}</p>
-              <h2 className="text-3xl font-extrabold text-gray-900">
-                {card.value}
-              </h2>
-            </div>
-          ))}
-        </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-10">
-          <p className="text-gray-500 text-sm mb-2">Delivered Revenue</p>
-          <h2 className="text-4xl font-extrabold text-green-600">
-            UGX {Number(summary.total_revenue).toLocaleString()}
-          </h2>
-        </div>
-
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        {/* ORDER ANALYTICS */}
+        <section className="mb-12">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">
-            Recent Orders
+            Order Analytics
           </h2>
 
-          {summary.recent_orders.length === 0 ? (
-            <p className="text-gray-600">No recent orders found.</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-gray-200">
-                    <th className="py-3 pr-4">Order ID</th>
-                    <th className="py-3 pr-4">Customer</th>
-                    <th className="py-3 pr-4">Phone</th>
-                    <th className="py-3 pr-4">City</th>
-                    <th className="py-3 pr-4">Total</th>
-                    <th className="py-3 pr-4">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {summary.recent_orders.map((order) => (
-                    <tr key={order.id} className="border-b border-gray-100">
-                      <td className="py-4 pr-4">#{order.id}</td>
-                      <td className="py-4 pr-4">{order.full_name}</td>
-                      <td className="py-4 pr-4">{order.phone_number}</td>
-                      <td className="py-4 pr-4">{order.city}</td>
-                      <td className="py-4 pr-4 text-green-600 font-semibold">
-                        UGX {Number(order.total_amount).toLocaleString()}
-                      </td>
-                      <td className="py-4 pr-4 capitalize">{order.status}</td>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {orderCards.map((card, index) => (
+              <div
+                key={index}
+                className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6"
+              >
+                <p className="text-gray-500 text-sm mb-2">{card.label}</p>
+                <h2 className="text-3xl font-extrabold text-gray-900">
+                  {card.value}
+                </h2>
+              </div>
+            ))}
+          </div>
+        </section>
+
+
+        {/* PRODUCT ANALYTICS */}
+        <section className="mb-12">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">
+            Product Analytics
+          </h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {productCards.map((card, index) => (
+              <div
+                key={index}
+                className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6"
+              >
+                <p className="text-gray-500 text-sm mb-2">{card.label}</p>
+                <h2 className="text-3xl font-extrabold text-gray-900">
+                  {card.value}
+                </h2>
+              </div>
+            ))}
+          </div>
+        </section>
+
+
+        {/* CATEGORY DISTRIBUTION */}
+        <section className="mb-12">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">
+            Products by Category
+          </h2>
+
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            {summary.products_by_category.map((category, index) => (
+              <div
+                key={index}
+                className="flex justify-between border-b border-gray-100 py-3"
+              >
+                <span>{category.name}</span>
+                <span className="font-semibold">
+                  {category.product_count}
+                </span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+
+        {/* REVENUE */}
+        <section className="mb-12">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <p className="text-gray-500 text-sm mb-2">
+              Delivered Revenue
+            </p>
+
+            <h2 className="text-4xl font-extrabold text-green-600">
+              UGX {Number(summary.total_revenue).toLocaleString()}
+            </h2>
+          </div>
+        </section>
+
+
+        {/* RECENT ORDERS */}
+        <section>
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">
+              Recent Orders
+            </h2>
+
+            {summary.recent_orders.length === 0 ? (
+              <p className="text-gray-600">No recent orders found.</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="border-b border-gray-200">
+                      <th className="py-3">Order ID</th>
+                      <th className="py-3">Customer</th>
+                      <th className="py-3">Phone</th>
+                      <th className="py-3">City</th>
+                      <th className="py-3">Total</th>
+                      <th className="py-3">Status</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
+                  </thead>
+
+                  <tbody>
+                    {summary.recent_orders.map((order) => (
+                      <tr key={order.id} className="border-b border-gray-100">
+                        <td className="py-4">#{order.id}</td>
+                        <td className="py-4">{order.full_name}</td>
+                        <td className="py-4">{order.phone_number}</td>
+                        <td className="py-4">{order.city}</td>
+                        <td className="py-4 text-green-600 font-semibold">
+                          UGX {Number(order.total_amount).toLocaleString()}
+                        </td>
+                        <td className="py-4 capitalize">
+                          {order.status}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </section>
+
       </main>
 
       <Footer />
