@@ -1,5 +1,6 @@
 from rest_framework import generics
 from rest_framework.permissions import IsAdminUser
+from rest_framework.parsers import MultiPartParser, FormParser
 from .models import Product
 from .serializers import ProductSerializer, ProductCreateUpdateSerializer
 
@@ -31,6 +32,7 @@ class ProductDetailAPIView(generics.RetrieveAPIView):
 class AdminProductListCreateAPIView(generics.ListCreateAPIView):
     queryset = Product.objects.all().order_by('-created_at')
     permission_classes = [IsAdminUser]
+    parser_classes = [MultiPartParser, FormParser]
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -41,6 +43,7 @@ class AdminProductListCreateAPIView(generics.ListCreateAPIView):
 class AdminProductRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Product.objects.all()
     permission_classes = [IsAdminUser]
+    parser_classes = [MultiPartParser, FormParser]
 
     def get_serializer_class(self):
         if self.request.method in ['PUT', 'PATCH']:

@@ -4,6 +4,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import FloatingWhatsAppButton from "../components/FloatingWhatsAppButton";
 import api from "../api/api";
+import getCsrfToken from "../utils/getCsrfToken";
 
 function AdminProductForm() {
   const navigate = useNavigate();
@@ -11,6 +12,7 @@ function AdminProductForm() {
   const [categories, setCategories] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [imagePreview, setImagePreview] = useState(null);
 
   const [formData, setFormData] = useState({
     category: "",
@@ -19,6 +21,7 @@ function AdminProductForm() {
     description: "",
     price: "",
     stock_quantity: "",
+    image: null,
     is_active: true,
     is_featured: false,
   });
@@ -34,7 +37,21 @@ function AdminProductForm() {
   }, []);
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value, type, checked, files } = e.target;
+
+    if (type === "file") {
+      const file = files[0];
+      setFormData({
+        ...formData,
+        image: file,
+      });
+
+      if (file) {
+        setImagePreview(URL.createObjectURL(file));
+      }
+      return;
+    }
+
     setFormData({
       ...formData,
       [name]: type === "checkbox" ? checked : value,
@@ -42,24 +59,43 @@ function AdminProductForm() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    setLoading(true);
-    setError("");
+  setLoading(true);
+  setError("");
 
-    try {
-      await api.post("products/admin/manage/", formData, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+  try {
+    // First make sure Django sets the CSRF cookie
+    await api.get("csrf/");
 
-      navigate("/admin-products");
+    const csrfToken = getCsrfToken();
+
+    const productData = new FormData();
+    productData.append("category", formData.category);
+    productData.append("name", formData.name);
+    productData.append("slug", formData.slug);
+    productData.append("description", formData.description);
+    productData.append("price", formData.price);
+    productData.append("stock_quantity", formData.stock_quantity);
+    productData.append("is_active", formData.is_active);
+    productData.append("is_featured", formData.is_featured);
+
+    if (formData.image) {
+      productData.append("image", formData.image);
+    }
+
+    await api.post("products/admin/manage/", productData, {
+      headers: {
+        "X-CSRFToken": csrfToken,
+      },
+    });
+
+        navigate("/admin-products");
     } catch (err) {
-      console.error(err);
-      setError("Failed to create product.");
+        console.error(err);
+        setError("Failed to create product.");
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
   };
 
@@ -153,7 +189,33 @@ function AdminProductForm() {
                 className="w-full border border-gray-300 rounded-xl px-4 py-3"
               />
             </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Product Image
+              </label>
+              <input
+                type="file"
+                name="image"
+                accept="image/*"
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded-xl px-4 py-3 bg-white"
+              />
+            </div>
           </div>
+
+          {imagePreview && (
+            <div className="mb-6">
+              <p className="text-sm font-semibold text-gray-700 mb-2">
+                Image Preview
+              </p>
+              <img
+                src={imagePreview}
+                alt="Preview"
+                className="w-48 h-48 object-cover rounded-xl border border-gray-200"
+              />
+            </div>
+          )}
 
           <div className="mb-6">
             <label className="block text-sm font-semibold text-gray-700 mb-2">
