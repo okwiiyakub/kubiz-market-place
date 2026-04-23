@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import FloatingWhatsAppButton from "../components/FloatingWhatsAppButton";
@@ -8,6 +8,9 @@ import getCsrfToken from "../utils/getCsrfToken";
 
 function AdminProductForm() {
   const navigate = useNavigate();
+  const { id } = useParams();
+
+  const isEditMode = Boolean(id);
 
   const [categories, setCategories] = useState([]);
   const [error, setError] = useState("");
@@ -36,6 +39,38 @@ function AdminProductForm() {
       });
   }, []);
 
+  useEffect(() => {
+    if (isEditMode) {
+      api.get(`products/admin/manage/${id}/`)
+        .then((response) => {
+          const product = response.data;
+
+          setFormData({
+            category: product.category,
+            name: product.name,
+            slug: product.slug,
+            description: product.description || "",
+            price: product.price,
+            stock_quantity: product.stock_quantity,
+            image: null,
+            is_active: product.is_active,
+            is_featured: product.is_featured,
+          });
+
+          if (product.image) {
+            setImagePreview(
+              product.image.startsWith("http")
+                ? product.image
+                : `http://localhost:8000${product.image}`
+            );
+          }
+        })
+        .catch(() => {
+          setError("Failed to load product details.");
+        });
+    }
+  }, [id, isEditMode]);
+
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;
 
@@ -59,43 +94,49 @@ function AdminProductForm() {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  setLoading(true);
-  setError("");
+    setLoading(true);
+    setError("");
 
-  try {
-    // First make sure Django sets the CSRF cookie
-    await api.get("csrf/");
+    try {
+      await api.get("csrf/");
+      const csrfToken = getCsrfToken();
 
-    const csrfToken = getCsrfToken();
+      const productData = new FormData();
+      productData.append("category", formData.category);
+      productData.append("name", formData.name);
+      productData.append("slug", formData.slug);
+      productData.append("description", formData.description);
+      productData.append("price", formData.price);
+      productData.append("stock_quantity", formData.stock_quantity);
+      productData.append("is_active", formData.is_active);
+      productData.append("is_featured", formData.is_featured);
 
-    const productData = new FormData();
-    productData.append("category", formData.category);
-    productData.append("name", formData.name);
-    productData.append("slug", formData.slug);
-    productData.append("description", formData.description);
-    productData.append("price", formData.price);
-    productData.append("stock_quantity", formData.stock_quantity);
-    productData.append("is_active", formData.is_active);
-    productData.append("is_featured", formData.is_featured);
+      if (formData.image) {
+        productData.append("image", formData.image);
+      }
 
-    if (formData.image) {
-      productData.append("image", formData.image);
-    }
+      if (isEditMode) {
+        await api.patch(`products/admin/manage/${id}/`, productData, {
+          headers: {
+            "X-CSRFToken": csrfToken,
+          },
+        });
+      } else {
+        await api.post("products/admin/manage/", productData, {
+          headers: {
+            "X-CSRFToken": csrfToken,
+          },
+        });
+      }
 
-    await api.post("products/admin/manage/", productData, {
-      headers: {
-        "X-CSRFToken": csrfToken,
-      },
-    });
-
-        navigate("/admin-products");
+      navigate("/admin-products");
     } catch (err) {
-        console.error(err);
-        setError("Failed to create product.");
+      console.error(err);
+      setError(isEditMode ? "Failed to update product." : "Failed to create product.");
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   };
 
@@ -105,7 +146,7 @@ function AdminProductForm() {
 
       <main className="max-w-4xl mx-auto px-6 py-12">
         <h1 className="text-4xl font-extrabold text-gray-900 mb-8">
-          Add New Product
+          {isEditMode ? "Edit Product" : "Add New Product"}
         </h1>
 
         <form
@@ -257,7 +298,9 @@ function AdminProductForm() {
             disabled={loading}
             className="bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-700 transition disabled:opacity-50"
           >
-            {loading ? "Saving..." : "Create Product"}
+            {loading
+              ? (isEditMode ? "Updating..." : "Saving...")
+              : (isEditMode ? "Update Product" : "Create Product")}
           </button>
         </form>
       </main>

@@ -97,12 +97,21 @@ function AdminProducts() {
                     {product.is_featured ? "Yes" : "No"}
                   </td>
                   <td className="py-4 pr-4">
-                    <button
-                      onClick={() => handleDelete(product.id)}
-                      className="bg-red-100 text-red-600 px-4 py-2 rounded-lg font-medium hover:bg-red-200 transition"
-                    >
-                      Delete
-                    </button>
+                    <div className="flex gap-3">
+                      <Link
+                        to={`/admin-products/edit/${product.id}`}
+                        className="bg-blue-100 text-blue-600 px-4 py-2 rounded-lg font-medium hover:bg-blue-200 transition"
+                      >
+                        Edit
+                      </Link>
+
+                      <button
+                        onClick={() => handleDelete(product.id)}
+                        className="bg-red-100 text-red-600 px-4 py-2 rounded-lg font-medium hover:bg-red-200 transition"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

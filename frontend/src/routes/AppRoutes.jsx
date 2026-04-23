@@ -22,6 +22,7 @@ function AppRoutes() {
         <Route path="/admin-login" element={<AdminLogin />} />
         <Route path="/admin-products" element={<AdminProducts />} />
         <Route path="/admin-products/new" element={<AdminProductForm />} />
+        <Route path="/admin-products/edit/:id" element={<AdminProductForm />} />
       </Routes>
     </BrowserRouter>
   );
