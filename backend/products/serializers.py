@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Product
+from categories.models import Category
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -20,4 +21,21 @@ class ProductSerializer(serializers.ModelSerializer):
             'is_active',
             'is_featured',
             'created_at',
+        ]
+
+
+class ProductCreateUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = [
+            'id',
+            'category',
+            'name',
+            'slug',
+            'description',
+            'price',
+            'stock_quantity',
+            'image',
+            'is_active',
+            'is_featured',
         ]

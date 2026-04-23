@@ -52,14 +52,23 @@ function Navbar({ onSearch }) {
             <Link to="/" className="text-gray-700 hover:text-blue-600 font-medium">
               Home
             </Link>
-              {localStorage.getItem("isAdmin") && (
+            {localStorage.getItem("isAdmin") && (
+              <>
                 <Link
                   to="/dashboard"
                   className="text-gray-700 hover:text-blue-600 font-medium"
                 >
                   Dashboard
                 </Link>
-              )}
+
+                <Link
+                  to="/admin-products"
+                  className="text-gray-700 hover:text-blue-600 font-medium"
+                >
+                  Admin Products
+                </Link>
+              </>
+            )}
             <a href="#" className="text-gray-700 hover:text-blue-600 font-medium">
               Categories
             </a>
