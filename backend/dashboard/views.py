@@ -7,10 +7,15 @@ from products.models import Product
 from categories.models import Category
 
 from .serializers import RecentOrderSerializer
+from rest_framework.permissions import IsAdminUser
 
 
 class DashboardSummaryAPIView(APIView):
+
+    permission_classes = [IsAdminUser]
+
     def get(self, request):
+        
 
         # ---------------------------
         # ORDER ANALYTICS

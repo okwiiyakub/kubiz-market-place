@@ -3,8 +3,10 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import FloatingWhatsAppButton from "../components/FloatingWhatsAppButton";
 import api from "../api/api";
+import { useNavigate } from "react-router-dom";
 
 function Dashboard() {
+  const navigate = useNavigate();
   const [summary, setSummary] = useState(null);
   const [error, setError] = useState("");
 
@@ -14,7 +16,7 @@ function Dashboard() {
         setSummary(response.data);
       })
       .catch(() => {
-        setError("Failed to load dashboard data.");
+        navigate("/");
       });
   }, []);
 
