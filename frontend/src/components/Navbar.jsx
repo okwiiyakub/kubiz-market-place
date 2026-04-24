@@ -1,100 +1,114 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useState } from "react";
 import { useCart } from "../context/CartContext";
 
 function Navbar({ onSearch }) {
+  const { cartItems } = useCart();
+
   const [searchText, setSearchText] = useState("");
-  const { cartCount } = useCart();
+
+  const isAdmin = localStorage.getItem("isAdmin") === "true";
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
     if (onSearch) {
       onSearch(searchText);
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("isAdmin");
+    window.location.href = "/";
+  };
+
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-6 py-4">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          <div>
-            <Link to="/" className="block">
-              <h1 className="text-2xl font-extrabold text-blue-600">
-                Kubiz Market Place
-              </h1>
-            </Link>
-            <p className="text-sm text-gray-500">
-              Your trusted marketplace for products and services
-            </p>
-          </div>
+    <nav className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-6 py-4 flex flex-wrap items-center justify-between gap-4">
 
-          <form
-            onSubmit={handleSubmit}
-            className="flex flex-1 max-w-2xl mx-auto w-full"
+        {/* Logo */}
+        <Link
+          to="/"
+          className="text-2xl font-extrabold text-blue-600 tracking-tight"
+        >
+          Kubiz Market Place
+        </Link>
+
+        {/* Search Bar */}
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-1 max-w-xl"
+        >
+          <input
+            type="text"
+            placeholder="Search products..."
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            className="flex-1 border border-gray-300 rounded-l-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+
+          <button
+            type="submit"
+            className="bg-blue-600 text-white px-6 rounded-r-xl hover:bg-blue-700 transition"
           >
-            <input
-              type="text"
-              placeholder="Search for products..."
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              className="flex-1 border border-gray-300 rounded-l-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <button
-              type="submit"
-              className="bg-blue-600 text-white px-6 py-3 rounded-r-xl font-semibold hover:bg-blue-700 transition"
-            >
-              Search
-            </button>
-          </form>
+            Search
+          </button>
+        </form>
 
-          <div className="flex items-center gap-6">
-            <nav className="hidden md:flex items-center gap-6">
-            <Link to="/" className="text-gray-700 hover:text-blue-600 font-medium">
-              Home
-            </Link>
-            {localStorage.getItem("isAdmin") && (
-              <>
-                <Link
-                  to="/dashboard"
-                  className="text-gray-700 hover:text-blue-600 font-medium"
-                >
-                  Dashboard
-                </Link>
+        {/* Navigation Links */}
+        <div className="flex items-center gap-6 text-gray-700 font-medium">
 
-                <Link
-                  to="/admin-products"
-                  className="text-gray-700 hover:text-blue-600 font-medium"
-                >
-                  Admin Products
-                </Link>
-              </>
-            )}
-            <a href="#" className="text-gray-700 hover:text-blue-600 font-medium">
-              Categories
-            </a>
-            <a href="#" className="text-gray-700 hover:text-blue-600 font-medium">
-              Products
-            </a>
-            <a href="#" className="text-gray-700 hover:text-blue-600 font-medium">
-              Services
-            </a>
-            </nav>
+          {/* Customer links */}
+          <Link
+            to="/"
+            className="hover:text-blue-600 transition"
+          >
+            Home
+          </Link>
 
-            <Link
-              to="/cart"
-              className="relative bg-blue-600 text-white px-5 py-2 rounded-xl font-semibold hover:bg-blue-700 transition"
-            >
-              Cart
-              {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full">
-                  {cartCount}
-                </span>
-              )}
-            </Link>
-          </div>
+          <Link
+            to="/cart"
+            className="hover:text-blue-600 transition"
+          >
+            Cart ({cartItems.length})
+          </Link>
+
+          {/* Admin-only links */}
+          {isAdmin && (
+            <>
+              <Link
+                to="/dashboard"
+                className="hover:text-blue-600 transition"
+              >
+                Dashboard
+              </Link>
+
+              <Link
+                to="/admin-products"
+                className="hover:text-blue-600 transition"
+              >
+                Admin Products
+              </Link>
+
+              <Link
+                to="/admin-orders"
+                className="hover:text-blue-600 transition"
+              >
+                Admin Orders
+              </Link>
+
+              <button
+                onClick={handleLogout}
+                className="text-red-600 hover:text-red-700"
+              >
+                Logout
+              </button>
+            </>
+          )}
+          
         </div>
       </div>
-    </header>
+    </nav>
   );
 }
 

@@ -69,3 +69,9 @@ class OrderSerializer(serializers.ModelSerializer):
             'created_at',
             'items',
         ]
+        
+        
+class AdminOrderUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = ['status']

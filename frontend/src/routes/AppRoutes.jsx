@@ -8,6 +8,7 @@ import Dashboard from "../pages/Dashboard";
 import AdminLogin from "../pages/AdminLogin";
 import AdminProducts from "../pages/AdminProducts";
 import AdminProductForm from "../pages/AdminProductForm";
+import AdminOrders from "../pages/AdminOrders";
 
 function AppRoutes() {
   return (
@@ -23,6 +24,7 @@ function AppRoutes() {
         <Route path="/admin-products" element={<AdminProducts />} />
         <Route path="/admin-products/new" element={<AdminProductForm />} />
         <Route path="/admin-products/edit/:id" element={<AdminProductForm />} />
+        <Route path="/admin-orders" element={<AdminOrders />} />
       </Routes>
     </BrowserRouter>
   );

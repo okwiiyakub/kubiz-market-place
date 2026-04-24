@@ -1,8 +1,13 @@
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import IsAdminUser
 from .models import Order
-from .serializers import OrderCreateSerializer, OrderSerializer
+from .serializers import (
+    OrderCreateSerializer,
+    OrderSerializer,
+    AdminOrderUpdateSerializer,
+)
 
 
 class OrderCreateAPIView(generics.CreateAPIView):
@@ -15,3 +20,19 @@ class OrderCreateAPIView(generics.CreateAPIView):
 
         response_serializer = OrderSerializer(order)
         return Response(response_serializer.data, status=status.HTTP_201_CREATED)
+
+
+class AdminOrderListAPIView(generics.ListAPIView):
+    queryset = Order.objects.all().order_by('-created_at')
+    serializer_class = OrderSerializer
+    permission_classes = [IsAdminUser]
+
+
+class AdminOrderDetailUpdateAPIView(generics.RetrieveUpdateAPIView):
+    queryset = Order.objects.all()
+    permission_classes = [IsAdminUser]
+
+    def get_serializer_class(self):
+        if self.request.method in ['PUT', 'PATCH']:
+            return AdminOrderUpdateSerializer
+        return OrderSerializer
