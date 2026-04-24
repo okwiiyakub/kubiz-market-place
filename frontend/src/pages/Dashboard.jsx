@@ -12,6 +12,11 @@ import {
   Tooltip,
   ResponsiveContainer,
   Legend,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
 } from "recharts";
 
 function Dashboard() {
@@ -191,6 +196,27 @@ function Dashboard() {
                 </span>
               </div>
             ))}
+          </div>
+        </section>
+
+
+        {/* PRODUCTS BY CATEGORY BAR CHART */}
+        <section className="mb-12">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">
+            Products by Category Chart
+          </h2>
+
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 h-96">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={summary.products_by_category}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis allowDecimals={false} />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="product_count" name="Products" fill="#2563eb" />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         </section>
 
