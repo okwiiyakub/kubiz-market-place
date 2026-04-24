@@ -5,15 +5,79 @@ import api from "../api/api";
 function AdminReports() {
   const [summary, setSummary] = useState(null);
   const [error, setError] = useState("");
+  const [filterLabel, setFilterLabel] = useState("All Time");
+
+  const [customDates, setCustomDates] = useState({
+    startDate: "",
+    endDate: "",
+  });
+
+  const fetchReport = (startDate = "", endDate = "", label = "All Time") => {
+    let endpoint = "dashboard/summary/";
+    const params = [];
+
+    if (startDate) {
+      params.push(`start_date=${startDate}`);
+    }
+
+    if (endDate) {
+      params.push(`end_date=${endDate}`);
+    }
+
+    if (params.length > 0) {
+      endpoint += `?${params.join("&")}`;
+    }
+
+    api.get(endpoint)
+      .then((response) => {
+        setSummary(response.data);
+        setFilterLabel(label);
+      })
+      .catch(() => setError("Failed to load report data."));
+  };
 
   useEffect(() => {
-    api.get("dashboard/summary/")
-      .then((response) => setSummary(response.data))
-      .catch(() => setError("Failed to load report data."));
+    fetchReport();
   }, []);
 
   const handlePrint = () => {
     window.print();
+  };
+
+  const filterToday = () => {
+    const today = new Date().toISOString().slice(0, 10);
+    fetchReport(today, today, "Today");
+  };
+
+  const filterThisMonth = () => {
+    const now = new Date();
+    const startDate = new Date(now.getFullYear(), now.getMonth(), 1)
+      .toISOString()
+      .slice(0, 10);
+
+    const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+      .toISOString()
+      .slice(0, 10);
+
+    fetchReport(startDate, endDate, "This Month");
+  };
+
+  const clearFilter = () => {
+    setCustomDates({ startDate: "", endDate: "" });
+    fetchReport("", "", "All Time");
+  };
+
+  const applyCustomFilter = () => {
+    if (!customDates.startDate || !customDates.endDate) {
+      alert("Please select both start date and end date.");
+      return;
+    }
+
+    fetchReport(
+      customDates.startDate,
+      customDates.endDate,
+      `${customDates.startDate} to ${customDates.endDate}`
+    );
   };
 
   if (error) return <p className="p-8 text-red-600">{error}</p>;
@@ -35,6 +99,9 @@ function AdminReports() {
               Orders, revenue, and product summary
             </p>
             <p className="text-gray-500 text-sm mt-1">
+              Filter: {filterLabel}
+            </p>
+            <p className="text-gray-500 text-sm mt-1">
               Generated on: {new Date().toLocaleString()}
             </p>
           </div>
@@ -46,6 +113,60 @@ function AdminReports() {
             Print Report
           </button>
         </div>
+
+        <section className="print:hidden bg-white rounded-2xl border p-6 mb-10">
+          <h2 className="text-2xl font-bold mb-4">Report Filters</h2>
+
+          <div className="flex flex-wrap gap-3 mb-6">
+            <button
+              onClick={filterToday}
+              className="bg-blue-100 text-blue-700 px-5 py-2 rounded-xl font-semibold hover:bg-blue-200 transition"
+            >
+              Today
+            </button>
+
+            <button
+              onClick={filterThisMonth}
+              className="bg-green-100 text-green-700 px-5 py-2 rounded-xl font-semibold hover:bg-green-200 transition"
+            >
+              This Month
+            </button>
+
+            <button
+              onClick={clearFilter}
+              className="bg-gray-100 text-gray-700 px-5 py-2 rounded-xl font-semibold hover:bg-gray-200 transition"
+            >
+              All Time
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <input
+              type="date"
+              value={customDates.startDate}
+              onChange={(e) =>
+                setCustomDates({ ...customDates, startDate: e.target.value })
+              }
+              className="border border-gray-300 rounded-xl px-4 py-3"
+            />
+
+            <input
+              type="date"
+              value={customDates.endDate}
+              onChange={(e) =>
+                setCustomDates({ ...customDates, endDate: e.target.value })
+              }
+              className="border border-gray-300 rounded-xl px-4 py-3"
+            />
+
+            <button
+              onClick={applyCustomFilter}
+              className="bg-blue-600 text-white px-5 py-3 rounded-xl font-semibold hover:bg-blue-700 transition"
+            >
+              Apply Custom Range
+            </button>
+          </div>
+        </section>
 
         <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
           <div className="bg-white p-6 rounded-2xl border">

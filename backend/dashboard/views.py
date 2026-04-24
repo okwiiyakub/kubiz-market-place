@@ -17,56 +17,44 @@ class DashboardSummaryAPIView(APIView):
     permission_classes = [IsAdminUser]
 
     def get(self, request):
-        
+        start_date = request.query_params.get('start_date')
+        end_date = request.query_params.get('end_date')
 
-        # ---------------------------
-        # ORDER ANALYTICS
-        # ---------------------------
+        orders = Order.objects.all()
 
-        total_orders = Order.objects.count()
-        pending_orders = Order.objects.filter(status='pending').count()
-        confirmed_orders = Order.objects.filter(status='confirmed').count()
-        processing_orders = Order.objects.filter(status='processing').count()
-        delivered_orders = Order.objects.filter(status='delivered').count()
-        cancelled_orders = Order.objects.filter(status='cancelled').count()
+        if start_date:
+            orders = orders.filter(created_at__date__gte=start_date)
+
+        if end_date:
+            orders = orders.filter(created_at__date__lte=end_date)
+
+        total_orders = orders.count()
+        pending_orders = orders.filter(status='pending').count()
+        confirmed_orders = orders.filter(status='confirmed').count()
+        processing_orders = orders.filter(status='processing').count()
+        delivered_orders = orders.filter(status='delivered').count()
+        cancelled_orders = orders.filter(status='cancelled').count()
 
         total_revenue = (
-            Order.objects.filter(status='delivered')
+            orders.filter(status='delivered')
             .aggregate(total=Sum('total_amount'))['total'] or 0
         )
 
-        recent_orders = Order.objects.order_by('-created_at')[:5]
+        recent_orders = orders.order_by('-created_at')[:5]
         recent_orders_data = RecentOrderSerializer(recent_orders, many=True).data
 
-
-        # ---------------------------
-        # PRODUCT ANALYTICS
-        # ---------------------------
-
         total_products = Product.objects.count()
-
         active_products = Product.objects.filter(is_active=True).count()
-
         inactive_products = Product.objects.filter(is_active=False).count()
-
         low_stock_products = Product.objects.filter(stock_quantity__lte=5).count()
-
-
-        # ---------------------------
-        # CATEGORY DISTRIBUTION
-        # ---------------------------
 
         products_by_category = (
             Category.objects.annotate(product_count=Count('products'))
             .values('name', 'product_count')
         )
-        
-        # ---------------------------
-        # LINE CHART DATA - MONTHLY SALES
-        # ---------------------------
 
         monthly_sales = (
-            Order.objects.filter(status='delivered')
+            orders.filter(status='delivered')
             .annotate(month=TruncMonth('created_at'))
             .values('month')
             .annotate(total=Sum('total_amount'))
@@ -82,7 +70,6 @@ class DashboardSummaryAPIView(APIView):
         ]
 
         return Response({
-            # ORDER DATA
             'total_orders': total_orders,
             'pending_orders': pending_orders,
             'confirmed_orders': confirmed_orders,
@@ -92,14 +79,11 @@ class DashboardSummaryAPIView(APIView):
             'total_revenue': total_revenue,
             'recent_orders': recent_orders_data,
 
-            # PRODUCT DATA
             'total_products': total_products,
             'active_products': active_products,
             'inactive_products': inactive_products,
             'low_stock_products': low_stock_products,
 
-            # CATEGORY DATA
             'products_by_category': list(products_by_category),
-            
             'monthly_sales': monthly_sales_data,
-        })
+    })
