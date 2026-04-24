@@ -17,6 +17,8 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
+  LineChart,
+  Line,
 } from "recharts";
 
 function Dashboard() {
@@ -231,6 +233,40 @@ function Dashboard() {
             <h2 className="text-4xl font-extrabold text-green-600">
               UGX {Number(summary.total_revenue).toLocaleString()}
             </h2>
+          </div>
+        </section>
+
+        {/* MONTHLY SALES TREND */}
+        <section className="mb-12">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">
+            Monthly Sales Trend
+          </h2>
+
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 h-96">
+            {summary.monthly_sales.length === 0 ? (
+              <div className="h-full flex items-center justify-center text-gray-500">
+                No delivered sales data yet. Mark some orders as delivered to see the trend.
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={summary.monthly_sales}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis />
+                  <Tooltip
+                    formatter={(value) => `UGX ${Number(value).toLocaleString()}`}
+                  />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="total"
+                    name="Sales Revenue"
+                    stroke="#16a34a"
+                    strokeWidth={3}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </section>
 

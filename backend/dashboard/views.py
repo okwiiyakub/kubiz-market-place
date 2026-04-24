@@ -9,6 +9,8 @@ from categories.models import Category
 from .serializers import RecentOrderSerializer
 from rest_framework.permissions import IsAdminUser
 
+from django.db.models.functions import TruncMonth
+
 
 class DashboardSummaryAPIView(APIView):
 
@@ -58,7 +60,26 @@ class DashboardSummaryAPIView(APIView):
             Category.objects.annotate(product_count=Count('products'))
             .values('name', 'product_count')
         )
+        
+        # ---------------------------
+        # LINE CHART DATA - MONTHLY SALES
+        # ---------------------------
 
+        monthly_sales = (
+            Order.objects.filter(status='delivered')
+            .annotate(month=TruncMonth('created_at'))
+            .values('month')
+            .annotate(total=Sum('total_amount'))
+            .order_by('month')
+        )
+
+        monthly_sales_data = [
+            {
+                'month': item['month'].strftime('%b %Y'),
+                'total': item['total']
+            }
+            for item in monthly_sales
+        ]
 
         return Response({
             # ORDER DATA
@@ -79,4 +100,6 @@ class DashboardSummaryAPIView(APIView):
 
             # CATEGORY DATA
             'products_by_category': list(products_by_category),
+            
+            'monthly_sales': monthly_sales_data,
         })
