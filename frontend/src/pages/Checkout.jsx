@@ -5,6 +5,7 @@ import Footer from "../components/Footer";
 import FloatingWhatsAppButton from "../components/FloatingWhatsAppButton";
 import { useCart } from "../context/CartContext";
 import api from "../api/api";
+import getCsrfToken from "../utils/getCsrfToken";
 
 function Checkout() {
   const { cartItems, cartTotal, clearCart } = useCart();
@@ -64,7 +65,14 @@ function Checkout() {
     };
 
     try {
-      const response = await api.post("orders/", payload);
+      await api.get("csrf/");
+      const csrfToken = getCsrfToken();
+
+      const response = await api.post("orders/", payload, {
+        headers: {
+          "X-CSRFToken": csrfToken,
+        },
+      });
 
       localStorage.setItem("kubiz-last-order", JSON.stringify(response.data));
       clearCart();
@@ -91,6 +99,7 @@ function Checkout() {
             <p className="text-gray-600 text-lg mb-4">
               Your cart is empty. Add products before checking out.
             </p>
+
             <Link
               to="/"
               className="inline-block bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-700 transition"
@@ -244,7 +253,8 @@ function Checkout() {
               </div>
 
               <p className="text-sm text-gray-500 leading-6">
-                Your order will be reviewed before final confirmation. You can also contact us on WhatsApp for faster assistance.
+                Your order will be reviewed before final confirmation. You can
+                also contact us on WhatsApp for faster assistance.
               </p>
             </div>
           </div>
