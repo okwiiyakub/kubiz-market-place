@@ -9,6 +9,7 @@ import AdminProducts from "../pages/AdminProducts";
 import AdminProductForm from "../pages/AdminProductForm";
 import AdminOrders from "../pages/AdminOrders";
 import ProtectedAdminRoute from "./ProtectedAdminRoute";
+import AdminReports from "../pages/AdminReports";
 
 function AppRoutes() {
   return (
@@ -66,6 +67,16 @@ function AppRoutes() {
             </ProtectedAdminRoute>
           }
         />
+
+        <Route
+          path="/admin-reports"
+          element={
+            <ProtectedAdminRoute>
+              <AdminReports />
+            </ProtectedAdminRoute>
+          }
+        />
+
       </Routes>
     </BrowserRouter>
   );

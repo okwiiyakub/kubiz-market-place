@@ -78,6 +78,11 @@ function Navbar({ onSearch }) {
               <Link to="/admin-orders" className="hover:text-blue-600 transition">
                 Admin Orders
               </Link>
+
+              <Link to="/admin-reports" className="hover:text-blue-600 transition">
+                Reports
+              </Link>
+
             </>
           )}
 
