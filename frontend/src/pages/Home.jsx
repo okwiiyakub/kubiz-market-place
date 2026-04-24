@@ -74,7 +74,7 @@ function Home() {
           {error && <p className="text-red-600 mt-2">{error}</p>}
         </div>
 
-        <section className="mb-16">
+        <section id="categories" className="mb-16">
           <div className="flex items-center justify-between mb-8">
             <div>
               <p className="text-blue-600 font-semibold uppercase tracking-wide text-sm">
@@ -97,7 +97,7 @@ function Home() {
           </div>
         </section>
 
-        <section>
+        <section id="products">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
             <div>
               <p className="text-blue-600 font-semibold uppercase tracking-wide text-sm">

@@ -4,6 +4,8 @@ import Footer from "../components/Footer";
 import FloatingWhatsAppButton from "../components/FloatingWhatsAppButton";
 import api from "../api/api";
 import { Link } from "react-router-dom";
+import getCsrfToken from "../utils/getCsrfToken";
+
 
 function AdminProducts() {
   const [products, setProducts] = useState([]);
@@ -24,11 +26,22 @@ function AdminProducts() {
   }, []);
 
   const handleDelete = async (id) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this product?");
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this product?"
+    );
+
     if (!confirmDelete) return;
 
     try {
-      await api.delete(`products/admin/manage/${id}/`);
+      await api.get("csrf/");
+      const csrfToken = getCsrfToken();
+
+      await api.delete(`products/admin/manage/${id}/`, {
+        headers: {
+          "X-CSRFToken": csrfToken,
+        },
+      });
+
       fetchProducts();
     } catch (err) {
       console.error(err);

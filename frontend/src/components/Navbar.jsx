@@ -4,7 +4,6 @@ import { useCart } from "../context/CartContext";
 
 function Navbar({ onSearch }) {
   const { cartItems } = useCart();
-
   const [searchText, setSearchText] = useState("");
 
   const isAdmin = localStorage.getItem("isAdmin") === "true";
@@ -25,8 +24,6 @@ function Navbar({ onSearch }) {
   return (
     <nav className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-6 py-4 flex flex-wrap items-center justify-between gap-4">
-
-        {/* Logo */}
         <Link
           to="/"
           className="text-2xl font-extrabold text-blue-600 tracking-tight"
@@ -34,11 +31,7 @@ function Navbar({ onSearch }) {
           Kubiz Market Place
         </Link>
 
-        {/* Search Bar */}
-        <form
-          onSubmit={handleSubmit}
-          className="flex flex-1 max-w-xl"
-        >
+        <form onSubmit={handleSubmit} className="flex flex-1 max-w-xl">
           <input
             type="text"
             placeholder="Search products..."
@@ -55,57 +48,51 @@ function Navbar({ onSearch }) {
           </button>
         </form>
 
-        {/* Navigation Links */}
         <div className="flex items-center gap-6 text-gray-700 font-medium">
-
-          {/* Customer links */}
-          <Link
-            to="/"
-            className="hover:text-blue-600 transition"
-          >
+          <Link to="/" className="hover:text-blue-600 transition">
             Home
           </Link>
 
-          <Link
-            to="/cart"
-            className="hover:text-blue-600 transition"
-          >
-            Cart ({cartItems.length})
-          </Link>
+          {!isAdmin && (
+            <>
+              <a href="/#products" className="hover:text-blue-600 transition">
+                Products
+              </a>
 
-          {/* Admin-only links */}
+              <a href="/#categories" className="hover:text-blue-600 transition">
+                Categories
+              </a>
+            </>
+          )}
+
           {isAdmin && (
             <>
-              <Link
-                to="/dashboard"
-                className="hover:text-blue-600 transition"
-              >
+              <Link to="/dashboard" className="hover:text-blue-600 transition">
                 Dashboard
               </Link>
 
-              <Link
-                to="/admin-products"
-                className="hover:text-blue-600 transition"
-              >
+              <Link to="/admin-products" className="hover:text-blue-600 transition">
                 Admin Products
               </Link>
 
-              <Link
-                to="/admin-orders"
-                className="hover:text-blue-600 transition"
-              >
+              <Link to="/admin-orders" className="hover:text-blue-600 transition">
                 Admin Orders
               </Link>
-
-              <button
-                onClick={handleLogout}
-                className="text-red-600 hover:text-red-700"
-              >
-                Logout
-              </button>
             </>
           )}
-          
+
+          <Link to="/cart" className="hover:text-blue-600 transition">
+            Cart ({cartItems.length})
+          </Link>
+
+          {isAdmin && (
+            <button
+              onClick={handleLogout}
+              className="text-red-600 hover:text-red-700"
+            >
+              Logout
+            </button>
+          )}
         </div>
       </div>
     </nav>
