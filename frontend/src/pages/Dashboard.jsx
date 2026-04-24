@@ -5,6 +5,15 @@ import FloatingWhatsAppButton from "../components/FloatingWhatsAppButton";
 import api from "../api/api";
 import { useNavigate } from "react-router-dom";
 
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
+
 function Dashboard() {
   const navigate = useNavigate();
   const [summary, setSummary] = useState(null);
@@ -59,6 +68,17 @@ function Dashboard() {
     { label: "Inactive Products", value: summary.inactive_products },
     { label: "Low Stock Products", value: summary.low_stock_products },
   ];
+  
+  const orderStatusData = [
+    { name: "Pending", value: summary.pending_orders },
+    { name: "Confirmed", value: summary.confirmed_orders },
+    { name: "Processing", value: summary.processing_orders },
+    { name: "Delivered", value: summary.delivered_orders },
+    { name: "Cancelled", value: summary.cancelled_orders },
+  ];
+
+  const COLORS = ["#f59e0b", "#3b82f6", "#8b5cf6", "#22c55e", "#ef4444"];
+  
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -98,6 +118,38 @@ function Dashboard() {
           </div>
         </section>
 
+
+        {/* ORDERS BY STATUS CHART */}
+        <section className="mb-12">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">
+            Orders by Status
+          </h2>
+
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 h-96">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={orderStatusData}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={120}
+                  dataKey="value"
+                  label
+                >
+                  {orderStatusData.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={COLORS[index % COLORS.length]}
+                    />
+                  ))}
+                </Pie>
+
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </section>
 
         {/* PRODUCT ANALYTICS */}
         <section className="mb-12">
