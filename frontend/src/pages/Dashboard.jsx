@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
-import FloatingWhatsAppButton from "../components/FloatingWhatsAppButton";
 import api from "../api/api";
 import { useNavigate } from "react-router-dom";
+import AdminLayout from "../layouts/AdminLayout";
 
 import {
   PieChart,
@@ -38,25 +36,21 @@ function Dashboard() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <Navbar />
-        <main className="max-w-7xl mx-auto px-6 py-12">
+      <AdminLayout>
+        <div className="max-w-7xl mx-auto">
           <p className="text-red-600 text-lg">{error}</p>
-        </main>
-        <Footer />
-      </div>
+        </div>
+      </AdminLayout>
     );
   }
 
   if (!summary) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <Navbar />
-        <main className="max-w-7xl mx-auto px-6 py-12">
+      <AdminLayout>
+        <div className="max-w-7xl mx-auto">
           <p className="text-gray-600 text-lg">Loading dashboard...</p>
-        </main>
-        <Footer />
-      </div>
+        </div>
+      </AdminLayout>
     );
   }
 
@@ -88,10 +82,8 @@ function Dashboard() {
   
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar />
-
-      <main className="max-w-7xl mx-auto px-6 py-12">
+    <AdminLayout>
+      <div className="max-w-7xl mx-auto">
 
         {/* HEADER */}
         <div className="mb-10">
@@ -316,11 +308,8 @@ function Dashboard() {
           </div>
         </section>
 
-      </main>
-
-      <Footer />
-      <FloatingWhatsAppButton />
-    </div>
+      </div>
+    </AdminLayout>
   );
 }
 
