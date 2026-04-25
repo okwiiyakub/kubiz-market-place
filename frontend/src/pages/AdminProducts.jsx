@@ -5,6 +5,7 @@ import FloatingWhatsAppButton from "../components/FloatingWhatsAppButton";
 import api from "../api/api";
 import { Link } from "react-router-dom";
 import getCsrfToken from "../utils/getCsrfToken";
+import AdminLayout from "../layouts/AdminLayout";
 
 
 function AdminProducts() {
