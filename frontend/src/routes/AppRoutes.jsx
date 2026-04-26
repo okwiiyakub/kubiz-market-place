@@ -10,6 +10,8 @@ import AdminProductForm from "../pages/AdminProductForm";
 import AdminOrders from "../pages/AdminOrders";
 import ProtectedAdminRoute from "./ProtectedAdminRoute";
 import AdminReports from "../pages/AdminReports";
+import Register from "../pages/Register";
+import Login from "../pages/Login";
 
 function AppRoutes() {
   return (
@@ -21,6 +23,8 @@ function AppRoutes() {
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/order-success" element={<OrderSuccess />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Login />} />
 
         {/* Admin protected routes */}
         <Route
