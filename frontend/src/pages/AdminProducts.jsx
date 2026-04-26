@@ -1,12 +1,8 @@
 import { useEffect, useState } from "react";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
-import FloatingWhatsAppButton from "../components/FloatingWhatsAppButton";
 import api from "../api/api";
 import { Link } from "react-router-dom";
 import getCsrfToken from "../utils/getCsrfToken";
 import AdminLayout from "../layouts/AdminLayout";
-
 
 function AdminProducts() {
   const [products, setProducts] = useState([]);
@@ -14,12 +10,8 @@ function AdminProducts() {
 
   const fetchProducts = () => {
     api.get("products/admin/manage/")
-      .then((response) => {
-        setProducts(response.data);
-      })
-      .catch(() => {
-        setError("Failed to load admin products.");
-      });
+      .then((response) => setProducts(response.data))
+      .catch(() => setError("Failed to load admin products."));
   };
 
   useEffect(() => {
@@ -27,10 +19,7 @@ function AdminProducts() {
   }, []);
 
   const handleDelete = async (id) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this product?"
-    );
-
+    const confirmDelete = window.confirm("Are you sure you want to delete this product?");
     if (!confirmDelete) return;
 
     try {
@@ -38,9 +27,7 @@ function AdminProducts() {
       const csrfToken = getCsrfToken();
 
       await api.delete(`products/admin/manage/${id}/`, {
-        headers: {
-          "X-CSRFToken": csrfToken,
-        },
+        headers: { "X-CSRFToken": csrfToken },
       });
 
       fetchProducts();
@@ -51,26 +38,24 @@ function AdminProducts() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar />
-
-      <main className="max-w-7xl mx-auto px-6 py-12">
+    <AdminLayout>
+      <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10">
-        <div>
+          <div>
             <p className="text-blue-600 font-semibold uppercase tracking-wide text-sm">
-            Admin Management
+              Admin Management
             </p>
             <h1 className="text-4xl font-extrabold text-gray-900">
-            Product Manager
+              Product Manager
             </h1>
-        </div>
+          </div>
 
-        <Link
+          <Link
             to="/admin-products/new"
             className="bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-700 transition"
-        >
+          >
             Add Product
-        </Link>
+          </Link>
         </div>
 
         {error && (
@@ -104,12 +89,8 @@ function AdminProducts() {
                     UGX {Number(product.price).toLocaleString()}
                   </td>
                   <td className="py-4 pr-4">{product.stock_quantity}</td>
-                  <td className="py-4 pr-4">
-                    {product.is_active ? "Yes" : "No"}
-                  </td>
-                  <td className="py-4 pr-4">
-                    {product.is_featured ? "Yes" : "No"}
-                  </td>
+                  <td className="py-4 pr-4">{product.is_active ? "Yes" : "No"}</td>
+                  <td className="py-4 pr-4">{product.is_featured ? "Yes" : "No"}</td>
                   <td className="py-4 pr-4">
                     <div className="flex gap-3">
                       <Link
@@ -136,11 +117,8 @@ function AdminProducts() {
             <p className="text-gray-600 py-6">No products available.</p>
           )}
         </div>
-      </main>
-
-      <Footer />
-      <FloatingWhatsAppButton />
-    </div>
+      </div>
+    </AdminLayout>
   );
 }
 
