@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
-import FloatingWhatsAppButton from "../components/FloatingWhatsAppButton";
 import api from "../api/api";
 import getCsrfToken from "../utils/getCsrfToken";
+import AdminLayout from "../layouts/AdminLayout";
 
 function AdminOrders() {
   const [orders, setOrders] = useState([]);
@@ -46,10 +44,8 @@ function AdminOrders() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar />
-
-      <main className="max-w-7xl mx-auto px-6 py-12">
+    <AdminLayout>
+      <div className="max-w-7xl mx-auto">
         <div className="mb-10">
           <p className="text-blue-600 font-semibold uppercase tracking-wide text-sm">
             Admin Management
@@ -120,11 +116,8 @@ function AdminOrders() {
             <p className="text-gray-600 py-6">No orders available.</p>
           )}
         </div>
-      </main>
-
-      <Footer />
-      <FloatingWhatsAppButton />
-    </div>
+      </div>
+    </AdminLayout>
   );
 }
 
