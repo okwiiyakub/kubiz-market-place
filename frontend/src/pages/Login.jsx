@@ -4,9 +4,11 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import api from "../api/api";
 import getCsrfToken from "../utils/getCsrfToken";
+import { useAuth } from "../context/AuthContext";
 
 function Login() {
   const navigate = useNavigate();
+  const { checkCustomer } = useAuth();
 
   const [formData, setFormData] = useState({
     username: "",
@@ -33,13 +35,16 @@ function Login() {
       await api.get("csrf/");
       const csrfToken = getCsrfToken();
 
-      await api.post("accounts/login/", formData, {
+      const response = await api.post("accounts/login/", formData, {
         headers: {
-          "X-CSRFToken": csrfToken,
+            "X-CSRFToken": csrfToken,
         },
-      });
+     });
 
-      navigate("/");
+     setCustomer(response.data);
+     navigate("/");
+
+      
     } catch (err) {
       console.error(err);
       setError("Invalid username or password.");

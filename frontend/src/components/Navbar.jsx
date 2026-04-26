@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
 
 function Navbar({ onSearch }) {
   const { cartItems } = useCart();
   const [searchText, setSearchText] = useState("");
+  const { customer, logoutCustomer } = useAuth();
 
   const isAdmin = localStorage.getItem("isAdmin") === "true";
 
@@ -90,21 +92,34 @@ function Navbar({ onSearch }) {
             Cart ({cartItems.length})
           </Link>
 
-          <Link to="/login" className="hover:text-blue-600 transition">
-            Login
-          </Link>
+          {!isAdmin && customer && (
+            <>
+              <Link to="/my-orders" className="hover:text-blue-600 transition">
+                My Orders
+              </Link>
 
-          <Link to="/register" className="bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition">
-            Register
-          </Link>         
+              <button
+                onClick={logoutCustomer}
+                className="text-red-600 hover:text-red-700"
+              >
+                Logout
+              </button>
+            </>
+          )}
 
-          {isAdmin && (
-            <button
-              onClick={handleLogout}
-              className="text-red-600 hover:text-red-700"
-            >
-              Logout
-            </button>
+          {!isAdmin && !customer && (
+            <>
+              <Link to="/login" className="hover:text-blue-600 transition">
+                Login
+              </Link>
+
+              <Link
+                to="/register"
+                className="bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition"
+              >
+                Register
+              </Link>
+            </>
           )}
         </div>
       </div>

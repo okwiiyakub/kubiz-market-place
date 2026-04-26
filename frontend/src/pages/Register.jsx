@@ -4,9 +4,11 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import api from "../api/api";
 import getCsrfToken from "../utils/getCsrfToken";
+import { useAuth } from "../context/AuthContext";
 
 function Register() {
   const navigate = useNavigate();
+  const { setCustomer } = useAuth();
 
   const [formData, setFormData] = useState({
     username: "",
@@ -34,13 +36,16 @@ function Register() {
       await api.get("csrf/");
       const csrfToken = getCsrfToken();
 
-      await api.post("accounts/register/", formData, {
+      const response = await api.post("accounts/register/", formData, {
         headers: {
-          "X-CSRFToken": csrfToken,
+            "X-CSRFToken": csrfToken,
         },
       });
 
+      setCustomer(response.data);
       navigate("/");
+
+      
     } catch (err) {
       console.error(err);
       setError("Failed to create account. Try another username or check your details.");
