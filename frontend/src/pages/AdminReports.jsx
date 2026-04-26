@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import Navbar from "../components/Navbar";
 import api from "../api/api";
+import AdminLayout from "../layouts/AdminLayout";
 
 function AdminReports() {
   const [summary, setSummary] = useState(null);
@@ -51,6 +51,7 @@ function AdminReports() {
 
   const filterThisMonth = () => {
     const now = new Date();
+
     const startDate = new Date(now.getFullYear(), now.getMonth(), 1)
       .toISOString()
       .slice(0, 10);
@@ -80,16 +81,29 @@ function AdminReports() {
     );
   };
 
-  if (error) return <p className="p-8 text-red-600">{error}</p>;
-  if (!summary) return <p className="p-8 text-gray-600">Loading report...</p>;
+  if (error) {
+    return (
+      <AdminLayout>
+        <div className="max-w-6xl mx-auto">
+          <p className="text-red-600">{error}</p>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  if (!summary) {
+    return (
+      <AdminLayout>
+        <div className="max-w-6xl mx-auto">
+          <p className="text-gray-600">Loading report...</p>
+        </div>
+      </AdminLayout>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="print:hidden">
-        <Navbar />
-      </div>
-
-      <main className="max-w-6xl mx-auto px-6 py-10">
+    <AdminLayout>
+      <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-8 print:block">
           <div>
             <h1 className="text-4xl font-extrabold text-gray-900">
@@ -226,6 +240,7 @@ function AdminReports() {
                 <th className="py-3">Products</th>
               </tr>
             </thead>
+
             <tbody>
               {summary.products_by_category.map((category, index) => (
                 <tr key={index} className="border-b">
@@ -268,8 +283,8 @@ function AdminReports() {
             </tbody>
           </table>
         </section>
-      </main>
-    </div>
+      </div>
+    </AdminLayout>
   );
 }
 
