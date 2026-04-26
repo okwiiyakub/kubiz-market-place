@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
-import FloatingWhatsAppButton from "../components/FloatingWhatsAppButton";
 import api from "../api/api";
 import getCsrfToken from "../utils/getCsrfToken";
+import AdminLayout from "../layouts/AdminLayout";
 
 function AdminProductForm() {
   const navigate = useNavigate();
@@ -76,6 +74,7 @@ function AdminProductForm() {
 
     if (type === "file") {
       const file = files[0];
+
       setFormData({
         ...formData,
         image: file,
@@ -84,6 +83,7 @@ function AdminProductForm() {
       if (file) {
         setImagePreview(URL.createObjectURL(file));
       }
+
       return;
     }
 
@@ -141,10 +141,8 @@ function AdminProductForm() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar />
-
-      <main className="max-w-4xl mx-auto px-6 py-12">
+    <AdminLayout>
+      <div className="max-w-4xl mx-auto">
         <h1 className="text-4xl font-extrabold text-gray-900 mb-8">
           {isEditMode ? "Edit Product" : "Add New Product"}
         </h1>
@@ -299,15 +297,16 @@ function AdminProductForm() {
             className="bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-700 transition disabled:opacity-50"
           >
             {loading
-              ? (isEditMode ? "Updating..." : "Saving...")
-              : (isEditMode ? "Update Product" : "Create Product")}
+              ? isEditMode
+                ? "Updating..."
+                : "Saving..."
+              : isEditMode
+                ? "Update Product"
+                : "Create Product"}
           </button>
         </form>
-      </main>
-
-      <Footer />
-      <FloatingWhatsAppButton />
-    </div>
+      </div>
+    </AdminLayout>
   );
 }
 
