@@ -11,7 +11,7 @@ function Login() {
   const { setCustomer } = useAuth();
 
   const [formData, setFormData] = useState({
-    username: "",
+    email: "",
     password: "",
   });
 
@@ -37,17 +37,15 @@ function Login() {
 
       const response = await api.post("accounts/login/", formData, {
         headers: {
-            "X-CSRFToken": csrfToken,
+          "X-CSRFToken": csrfToken,
         },
-     });
+      });
 
-     setCustomer(response.data);
-     navigate("/");
-
-      
+      setCustomer(response.data);
+      navigate("/");
     } catch (err) {
       console.error(err);
-      setError("Invalid username or password.");
+      setError("Invalid email or password.");
     } finally {
       setLoading(false);
     }
@@ -76,15 +74,15 @@ function Login() {
           <form onSubmit={handleLogin}>
             <div className="mb-5">
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Username
+                Email
               </label>
               <input
-                type="text"
-                name="username"
-                value={formData.username}
+                type="email"
+                name="email"
+                value={formData.email}
                 onChange={handleChange}
                 className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter username"
+                placeholder="Enter email"
               />
             </div>
 

@@ -11,7 +11,7 @@ function Register() {
   const { setCustomer } = useAuth();
 
   const [formData, setFormData] = useState({
-    username: "",
+    full_name: "",
     email: "",
     password: "",
   });
@@ -38,17 +38,15 @@ function Register() {
 
       const response = await api.post("accounts/register/", formData, {
         headers: {
-            "X-CSRFToken": csrfToken,
+          "X-CSRFToken": csrfToken,
         },
       });
 
       setCustomer(response.data);
       navigate("/");
-
-      
     } catch (err) {
       console.error(err);
-      setError("Failed to create account. Try another username or check your details.");
+      setError("Failed to create account. This email may already be registered.");
     } finally {
       setLoading(false);
     }
@@ -77,15 +75,15 @@ function Register() {
           <form onSubmit={handleRegister}>
             <div className="mb-5">
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Username
+                Full Name
               </label>
               <input
                 type="text"
-                name="username"
-                value={formData.username}
+                name="full_name"
+                value={formData.full_name}
                 onChange={handleChange}
                 className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter username"
+                placeholder="Example: Opio Muzamil"
               />
             </div>
 
@@ -99,7 +97,7 @@ function Register() {
                 value={formData.email}
                 onChange={handleChange}
                 className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter email"
+                placeholder="Example: muzamil@gmail.com"
               />
             </div>
 
