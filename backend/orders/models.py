@@ -1,8 +1,18 @@
 from django.db import models
 from products.models import Product
+from django.contrib.auth.models import User
 
 
 class Order(models.Model):
+    
+    customer = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='orders'
+    )
+    
     STATUS_CHOICES = [
         ('pending', 'Pending'),
         ('confirmed', 'Confirmed'),
