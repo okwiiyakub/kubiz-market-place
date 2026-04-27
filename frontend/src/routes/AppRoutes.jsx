@@ -12,6 +12,7 @@ import ProtectedAdminRoute from "./ProtectedAdminRoute";
 import AdminReports from "../pages/AdminReports";
 import Register from "../pages/Register";
 import Login from "../pages/Login";
+import MyOrders from "../pages/MyOrders";
 
 function AppRoutes() {
   return (
@@ -25,6 +26,7 @@ function AppRoutes() {
         <Route path="/order-success" element={<OrderSuccess />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/my-orders" element={<MyOrders />} />
 
         {/* Admin protected routes */}
         <Route
