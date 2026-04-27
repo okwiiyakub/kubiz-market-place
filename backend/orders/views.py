@@ -8,6 +8,7 @@ from .serializers import (
     OrderSerializer,
     AdminOrderUpdateSerializer,
 )
+from rest_framework.permissions import IsAuthenticated
 
 
 class OrderCreateAPIView(generics.CreateAPIView):
@@ -37,3 +38,11 @@ class AdminOrderDetailUpdateAPIView(generics.RetrieveUpdateAPIView):
         if self.request.method in ['PUT', 'PATCH']:
             return AdminOrderUpdateSerializer
         return OrderSerializer
+    
+    
+class CustomerOrderListAPIView(generics.ListAPIView):
+    serializer_class = OrderSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Order.objects.filter(customer=self.request.user).order_by('-created_at')
