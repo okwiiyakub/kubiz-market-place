@@ -1,4 +1,5 @@
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -21,17 +22,25 @@ class RegisterAPIView(APIView):
 
 class LoginAPIView(APIView):
     def post(self, request):
-        username = request.data.get('username')
+        email = request.data.get('email')
         password = request.data.get('password')
 
-        user = authenticate(request, username=username, password=password)
+        try:
+            user_obj = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response(
+                {'detail': 'Invalid email or password.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        user = authenticate(request, username=user_obj.username, password=password)
 
         if user is not None:
             login(request, user)
             return Response(UserSerializer(user).data)
 
         return Response(
-            {'detail': 'Invalid username or password.'},
+            {'detail': 'Invalid email or password.'},
             status=status.HTTP_400_BAD_REQUEST
         )
 
