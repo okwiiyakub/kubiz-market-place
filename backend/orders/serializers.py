@@ -20,7 +20,8 @@ class OrderCreateSerializer(serializers.Serializer):
     def create(self, validated_data):
         items_data = validated_data.pop('items')
 
-        order = Order.objects.create(**validated_data)
+        customer = self.context.get('customer')
+        order = Order.objects.create(customer=customer, **validated_data)
 
         total_amount = 0
 

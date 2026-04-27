@@ -16,6 +16,7 @@ class OrderCreateAPIView(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        serializer.context['customer'] = request.user if request.user.is_authenticated else None
         order = serializer.save()
 
         response_serializer = OrderSerializer(order)
