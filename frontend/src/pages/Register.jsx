@@ -83,7 +83,7 @@ function Register() {
                 value={formData.full_name}
                 onChange={handleChange}
                 className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Example: Opio Muzamil"
+                placeholder="Example: John Doe"
               />
             </div>
 
@@ -97,7 +97,7 @@ function Register() {
                 value={formData.email}
                 onChange={handleChange}
                 className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Example: muzamil@gmail.com"
+                placeholder="Example: john@gmail.com"
               />
             </div>
 
