@@ -8,10 +8,13 @@ import { useCart } from "../context/CartContext";
 
 function ProductDetail() {
   const { slug } = useParams();
+  const { addToCart } = useCart();
+
   const [product, setProduct] = useState(null);
+  const [quantity, setQuantity] = useState(1);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
-  const { addToCart } = useCart();
+  const [addedMessage, setAddedMessage] = useState("");
 
   useEffect(() => {
     api.get(`products/${slug}/`)
@@ -25,13 +28,34 @@ function ProductDetail() {
       });
   }, [slug]);
 
+  const increaseQuantity = () => {
+    if (product && quantity < product.stock_quantity) {
+      setQuantity(quantity + 1);
+    }
+  };
+
+  const decreaseQuantity = () => {
+    if (quantity > 1) {
+      setQuantity(quantity - 1);
+    }
+  };
+
+  const handleAddToCart = () => {
+    for (let i = 0; i < quantity; i++) {
+      addToCart(product);
+    }
+
+    setAddedMessage(`${quantity} item(s) added to cart.`);
+    setTimeout(() => setAddedMessage(""), 2500);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
         <Navbar />
-        <div className="max-w-6xl mx-auto px-6 py-16">
+        <main className="max-w-7xl mx-auto px-6 py-16">
           <p className="text-lg text-gray-600">Loading product details...</p>
-        </div>
+        </main>
         <Footer />
       </div>
     );
@@ -41,17 +65,18 @@ function ProductDetail() {
     return (
       <div className="min-h-screen bg-gray-50">
         <Navbar />
-        <div className="max-w-6xl mx-auto px-6 py-16">
+        <main className="max-w-7xl mx-auto px-6 py-16">
           <p className="text-red-600 text-lg mb-4">
             {error || "Product not found."}
           </p>
+
           <Link
             to="/"
             className="inline-block bg-blue-600 text-white px-5 py-3 rounded-xl font-semibold hover:bg-blue-700 transition"
           >
             Back to Home
           </Link>
-        </div>
+        </main>
         <Footer />
       </div>
     );
@@ -60,90 +85,186 @@ function ProductDetail() {
   const imageUrl = product.image
     ? product.image.startsWith("http")
       ? product.image
-      : `http://127.0.0.1:8000${product.image}`
+      : `http://localhost:8000${product.image}`
     : null;
 
-  const whatsappNumber = "256783372406"; 
+  const whatsappNumber = "2567XXXXXXXX"; // replace with your real WhatsApp number
 
-  const whatsappMessage = `Hello, I am interested in ${product.name} on Kubiz Market Place. Please share more details. Price seen: UGX ${Number(product.price).toLocaleString()}.`;
+  const whatsappMessage = `Hello, I am interested in ${product.name} on Kubiz Market Place. Price: UGX ${Number(product.price).toLocaleString()}. Please share more details.`;
 
-  const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
+  const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+    whatsappMessage
+  )}`;
+
+  const isOutOfStock = product.stock_quantity <= 0;
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
 
-      <main className="max-w-7xl mx-auto px-6 py-12">
-        <div className="mb-6">
-          <Link
-            to="/"
-            className="text-blue-600 font-medium hover:underline"
-          >
-            ← Back to Home
-          </Link>
+      <main className="max-w-7xl mx-auto px-6 py-10">
+        <div className="mb-6 text-sm text-gray-500">
+          <Link to="/" className="hover:text-blue-600">
+            Home
+          </Link>{" "}
+          /{" "}
+          <span className="text-gray-800 font-medium">
+            {product.name}
+          </span>
         </div>
 
-        <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden grid grid-cols-1 lg:grid-cols-2 gap-10 p-8">
-          <div className="bg-gray-100 rounded-2xl overflow-hidden">
-            {imageUrl ? (
-              <img
-                src={imageUrl}
-                alt={product.name}
-                className="w-full h-[420px] object-cover"
-              />
-            ) : (
-              <div className="w-full h-[420px] flex items-center justify-center text-gray-500">
-                No Image Available
+        <section className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden grid grid-cols-1 lg:grid-cols-2 gap-10 p-6 lg:p-10">
+          <div>
+            <div className="bg-gray-100 rounded-3xl overflow-hidden border border-gray-100">
+              {imageUrl ? (
+                <img
+                  src={imageUrl}
+                  alt={product.name}
+                  className="w-full h-[460px] object-cover"
+                />
+              ) : (
+                <div className="w-full h-[460px] flex items-center justify-center text-gray-500">
+                  No Image Available
+                </div>
+              )}
+            </div>
+
+            <div className="grid grid-cols-3 gap-3 mt-4">
+              <div className="h-24 rounded-2xl bg-gray-100 border border-blue-500 overflow-hidden">
+                {imageUrl && (
+                  <img
+                    src={imageUrl}
+                    alt={product.name}
+                    className="w-full h-full object-cover"
+                  />
+                )}
               </div>
-            )}
+            </div>
           </div>
 
           <div className="flex flex-col justify-center">
-            <p className="text-sm uppercase tracking-wide text-blue-600 font-semibold mb-3">
-              {product.category_name}
-            </p>
+            <div className="flex flex-wrap items-center gap-3 mb-4">
+              <span className="bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-semibold">
+                {product.category_name}
+              </span>
 
-            <h1 className="text-4xl font-extrabold text-gray-900 mb-4">
-              {product.name}
-            </h1>
+              {product.is_featured && (
+                <span className="bg-yellow-100 text-yellow-700 px-4 py-2 rounded-full text-sm font-semibold">
+                  Featured
+                </span>
+              )}
 
-            <p className="text-3xl font-extrabold text-green-600 mb-6">
-              UGX {Number(product.price).toLocaleString()}
-            </p>
-
-            <p className="text-gray-700 leading-8 mb-6">
-              {product.description || "No description available for this product."}
-            </p>
-
-            <div className="mb-8">
-              <span className="inline-block bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-semibold">
-                Stock Available: {product.stock_quantity}
+              <span
+                className={`px-4 py-2 rounded-full text-sm font-semibold ${
+                  isOutOfStock
+                    ? "bg-red-100 text-red-700"
+                    : "bg-green-100 text-green-700"
+                }`}
+              >
+                {isOutOfStock ? "Out of Stock" : "In Stock"}
               </span>
             </div>
 
-            <div className="flex flex-wrap gap-4">
+            <h1 className="text-4xl lg:text-5xl font-extrabold text-gray-900 mb-4 leading-tight">
+              {product.name}
+            </h1>
+
+            <p className="text-4xl font-extrabold text-green-600 mb-6">
+              UGX {Number(product.price).toLocaleString()}
+            </p>
+
+            <p className="text-gray-700 leading-8 mb-8 text-lg">
+              {product.description || "No description available for this product."}
+            </p>
+
+            <div className="bg-gray-50 border border-gray-100 rounded-2xl p-5 mb-6">
+              <p className="text-sm text-gray-500 mb-2">Available Stock</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {product.stock_quantity} item(s)
+              </p>
+            </div>
+
+            {!isOutOfStock && (
+              <div className="mb-6">
+                <p className="font-semibold text-gray-800 mb-3">
+                  Select Quantity
+                </p>
+
+                <div className="flex items-center gap-4">
+                  <button
+                    onClick={decreaseQuantity}
+                    className="w-12 h-12 rounded-xl border border-gray-300 text-xl font-bold hover:bg-gray-100"
+                  >
+                    -
+                  </button>
+
+                  <span className="text-2xl font-bold min-w-10 text-center">
+                    {quantity}
+                  </span>
+
+                  <button
+                    onClick={increaseQuantity}
+                    className="w-12 h-12 rounded-xl border border-gray-300 text-xl font-bold hover:bg-gray-100"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {addedMessage && (
+              <p className="bg-green-100 text-green-700 px-4 py-3 rounded-xl mb-5">
+                {addedMessage}
+              </p>
+            )}
+
+            <div className="flex flex-col sm:flex-row gap-4">
               <button
-                  onClick={() => addToCart(product)}
-                  className="bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-700 transition"
-                >
-                  Add to Cart
+                onClick={handleAddToCart}
+                disabled={isOutOfStock}
+                className="flex-1 bg-blue-600 text-white px-6 py-4 rounded-xl font-bold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isOutOfStock ? "Out of Stock" : "Add to Cart"}
               </button>
 
               <a
                 href={whatsappLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="border border-green-600 text-green-600 px-6 py-3 rounded-xl font-semibold hover:bg-green-50 transition"
+                className="flex-1 text-center border border-green-600 text-green-600 px-6 py-4 rounded-xl font-bold hover:bg-green-50 transition"
               >
                 Chat on WhatsApp
               </a>
             </div>
+
+            <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100">
+                <p className="font-bold text-gray-900">Trusted Seller</p>
+                <p className="text-sm text-gray-500 mt-1">
+                  Verified marketplace listing
+                </p>
+              </div>
+
+              <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100">
+                <p className="font-bold text-gray-900">Fast Inquiry</p>
+                <p className="text-sm text-gray-500 mt-1">
+                  Contact seller instantly
+                </p>
+              </div>
+
+              <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100">
+                <p className="font-bold text-gray-900">Order Tracking</p>
+                <p className="text-sm text-gray-500 mt-1">
+                  Track after checkout
+                </p>
+              </div>
+            </div>
           </div>
-        </div>
+        </section>
       </main>
 
       <Footer />
-        <FloatingWhatsAppButton />
+      <FloatingWhatsAppButton />
     </div>
   );
 }
