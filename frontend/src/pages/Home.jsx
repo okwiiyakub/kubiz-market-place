@@ -63,6 +63,12 @@ function Home() {
     setSelectedCategory("");
   };
 
+  const featuredProducts = products
+    .filter((product) => product.is_featured)
+    .slice(0, 3);
+
+  const latestProducts = products.slice(0, 6);
+
   return (
     <div className="bg-gray-50 min-h-screen">
       <Navbar onSearch={setSearchTerm} />
@@ -74,16 +80,65 @@ function Home() {
           {error && <p className="text-red-600 mt-2">{error}</p>}
         </div>
 
-        <section id="categories" className="mb-16">
-          <div className="flex items-center justify-between mb-8">
-            <div>
+        {/* TRUST STRIP */}
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+          <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+            <h3 className="text-xl font-bold text-gray-900 mb-2">
+              Secure Shopping
+            </h3>
+            <p className="text-gray-600">
+              Place orders safely and track them from your customer account.
+            </p>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+            <h3 className="text-xl font-bold text-gray-900 mb-2">
+              Quality Products
+            </h3>
+            <p className="text-gray-600">
+              Discover computers, phones, accessories, services, and digital products.
+            </p>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+            <h3 className="text-xl font-bold text-gray-900 mb-2">
+              Quick Support
+            </h3>
+            <p className="text-gray-600">
+              Contact Kubiz Market Place directly through WhatsApp for help.
+            </p>
+          </div>
+        </section>
+
+        {/* FEATURED PRODUCTS */}
+        {featuredProducts.length > 0 && (
+          <section className="mb-16">
+            <div className="mb-8">
               <p className="text-blue-600 font-semibold uppercase tracking-wide text-sm">
-                Browse with ease
+                Recommended for you
               </p>
               <h2 className="text-3xl font-extrabold text-gray-900">
-                Shop by Categories
+                Featured Products
               </h2>
             </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+              {featuredProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* CATEGORIES */}
+        <section id="categories" className="mb-16">
+          <div className="mb-8">
+            <p className="text-blue-600 font-semibold uppercase tracking-wide text-sm">
+              Browse with ease
+            </p>
+            <h2 className="text-3xl font-extrabold text-gray-900">
+              Shop by Categories
+            </h2>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -97,6 +152,27 @@ function Home() {
           </div>
         </section>
 
+        {/* LATEST PRODUCTS */}
+        {!searchTerm && !selectedCategory && latestProducts.length > 0 && (
+          <section className="mb-16">
+            <div className="mb-8">
+              <p className="text-blue-600 font-semibold uppercase tracking-wide text-sm">
+                New arrivals
+              </p>
+              <h2 className="text-3xl font-extrabold text-gray-900">
+                Latest Products
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+              {latestProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* ALL / FILTERED PRODUCTS */}
         <section id="products">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
             <div>
@@ -104,7 +180,9 @@ function Home() {
                 Fresh listings
               </p>
               <h2 className="text-3xl font-extrabold text-gray-900">
-                {searchTerm || selectedCategory ? "Filtered Products" : "Available Products"}
+                {searchTerm || selectedCategory
+                  ? "Filtered Products"
+                  : "All Products"}
               </h2>
             </div>
 
