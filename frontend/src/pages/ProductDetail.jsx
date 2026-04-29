@@ -5,6 +5,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import FloatingWhatsAppButton from "../components/FloatingWhatsAppButton";
 import { useCart } from "../context/CartContext";
+import ProductCard from "../components/ProductCard";
 
 function ProductDetail() {
   const { slug } = useParams();
@@ -15,6 +16,7 @@ function ProductDetail() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [addedMessage, setAddedMessage] = useState("");
+  const [relatedProducts, setRelatedProducts] = useState([]);
 
   useEffect(() => {
     api.get(`products/${slug}/`)
@@ -27,6 +29,27 @@ function ProductDetail() {
         setLoading(false);
       });
   }, [slug]);
+
+
+  useEffect(() => {
+    if (!product) return;
+
+    api.get("products/")
+      .then((response) => {
+        const related = response.data
+          .filter(
+            (item) =>
+              item.category_name === product.category_name &&
+              item.slug !== product.slug
+          )
+          .slice(0, 3);
+
+        setRelatedProducts(related);
+      })
+      .catch(() => {
+        setRelatedProducts([]);
+      });
+  }, [product]);
 
   const increaseQuantity = () => {
     if (product && quantity < product.stock_quantity) {
@@ -261,6 +284,26 @@ function ProductDetail() {
             </div>
           </div>
         </section>
+
+        {relatedProducts.length > 0 && (
+          <section className="mt-16">
+            <div className="mb-8">
+              <p className="text-blue-600 font-semibold uppercase tracking-wide text-sm">
+                Similar products
+              </p>
+              <h2 className="text-3xl font-extrabold text-gray-900">
+                You May Also Like
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+              {relatedProducts.map((item) => (
+                <ProductCard key={item.id} product={item} />
+              ))}
+            </div>
+          </section>
+        )}
+
       </main>
 
       <Footer />
