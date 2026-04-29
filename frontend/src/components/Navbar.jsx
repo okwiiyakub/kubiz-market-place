@@ -220,6 +220,7 @@ function Navbar({ onSearch }) {
                   <Link to="/my-orders" onClick={closeMenu}>
                     My Orders
                   </Link>
+                  <Link to="/account">My Account</Link>
 
                   <button
                     onClick={handleCustomerLogout}

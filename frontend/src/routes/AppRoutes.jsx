@@ -13,6 +13,7 @@ import AdminReports from "../pages/AdminReports";
 import Register from "../pages/Register";
 import Login from "../pages/Login";
 import MyOrders from "../pages/MyOrders";
+import Account from "../pages/Account";
 
 function AppRoutes() {
   return (
@@ -27,6 +28,7 @@ function AppRoutes() {
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/my-orders" element={<MyOrders />} />
+        <Route path="/account" element={<Account />} />
 
         {/* Admin protected routes */}
         <Route
