@@ -45,10 +45,7 @@ function Navbar({ onSearch }) {
             Kubiz Market Place
           </Link>
 
-          <form
-            onSubmit={handleSubmit}
-            className="hidden md:flex flex-1 max-w-xl"
-          >
+          <form onSubmit={handleSubmit} className="hidden md:flex flex-1 max-w-xl">
             <input
               type="text"
               placeholder="Search products..."
@@ -117,6 +114,10 @@ function Navbar({ onSearch }) {
               <>
                 <Link to="/my-orders" className="hover:text-blue-600 transition">
                   My Orders
+                </Link>
+
+                <Link to="/account" className="hover:text-blue-600 transition">
+                  My Account
                 </Link>
 
                 <button
@@ -220,7 +221,10 @@ function Navbar({ onSearch }) {
                   <Link to="/my-orders" onClick={closeMenu}>
                     My Orders
                   </Link>
-                  <Link to="/account">My Account</Link>
+
+                  <Link to="/account" onClick={closeMenu}>
+                    My Account
+                  </Link>
 
                   <button
                     onClick={handleCustomerLogout}
