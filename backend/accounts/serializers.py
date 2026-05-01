@@ -50,3 +50,22 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_full_name(self, obj):
         return obj.get_full_name()
+
+
+class UpdateProfileSerializer(serializers.Serializer):
+    full_name = serializers.CharField(max_length=255)
+
+    def update(self, instance, validated_data):
+        full_name = validated_data.get("full_name", "")
+
+        name_parts = full_name.strip().split(" ", 1)
+        instance.first_name = name_parts[0] if name_parts else ""
+        instance.last_name = name_parts[1] if len(name_parts) > 1 else ""
+        instance.save()
+
+        return instance
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    current_password = serializers.CharField(write_only=True)
+    new_password = serializers.CharField(write_only=True, min_length=6)
