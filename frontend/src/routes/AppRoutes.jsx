@@ -14,6 +14,7 @@ import Register from "../pages/Register";
 import Login from "../pages/Login";
 import MyOrders from "../pages/MyOrders";
 import Account from "../pages/Account";
+import OrderDetail from "../pages/OrderDetail";
 
 function AppRoutes() {
   return (
@@ -29,6 +30,7 @@ function AppRoutes() {
         <Route path="/login" element={<Login />} />
         <Route path="/my-orders" element={<MyOrders />} />
         <Route path="/account" element={<Account />} />
+        <Route path="/my-orders/:id" element={<OrderDetail />} />
 
         {/* Admin protected routes */}
         <Route
