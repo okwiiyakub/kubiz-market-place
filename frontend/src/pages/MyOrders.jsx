@@ -94,6 +94,13 @@ function MyOrders() {
                   <p className="text-green-600 text-2xl font-extrabold">
                     UGX {Number(order.total_amount).toLocaleString()}
                   </p>
+
+                  <Link
+                    to={`/my-orders/${order.id}`}
+                    className="inline-block mt-4 bg-blue-600 text-white px-5 py-3 rounded-xl font-semibold hover:bg-blue-700 transition"
+                  >
+                    View Details
+                  </Link>
                 </div>
 
                 <div className="border-t border-gray-100 pt-4">
