@@ -1,14 +1,16 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import FloatingWhatsAppButton from "../components/FloatingWhatsAppButton";
 import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
 import api from "../api/api";
 import getCsrfToken from "../utils/getCsrfToken";
 
 function Checkout() {
   const { cartItems, cartTotal, clearCart } = useCart();
+  const { customer } = useAuth();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -22,6 +24,16 @@ function Checkout() {
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (customer) {
+      setFormData((prevData) => ({
+        ...prevData,
+        fullName: customer.full_name || "",
+        email: customer.email || "",
+      }));
+    }
+  }, [customer]);
 
   const handleChange = (e) => {
     setFormData({
@@ -93,6 +105,12 @@ function Checkout() {
         <h1 className="text-4xl font-extrabold text-gray-900 mb-8">
           Checkout
         </h1>
+
+        {customer && (
+          <div className="bg-blue-50 border border-blue-100 text-blue-700 rounded-2xl px-6 py-4 mb-8">
+            You are checking out as <strong>{customer.full_name}</strong>. Your name and email have been filled automatically.
+          </div>
+        )}
 
         {cartItems.length === 0 ? (
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-10 text-center">
