@@ -15,6 +15,7 @@ import Login from "../pages/Login";
 import MyOrders from "../pages/MyOrders";
 import Account from "../pages/Account";
 import OrderDetail from "../pages/OrderDetail";
+import AdminOrderDetail from "../pages/AdminOrderDetail";
 
 function AppRoutes() {
   return (
@@ -86,6 +87,15 @@ function AppRoutes() {
             </ProtectedAdminRoute>
           }
         />
+
+        <Route
+          path="/admin-orders/:id"
+          element={
+            <ProtectedAdminRoute>
+              <AdminOrderDetail />
+            </ProtectedAdminRoute>
+          }
+        />        
 
       </Routes>
     </BrowserRouter>
