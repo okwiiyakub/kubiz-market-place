@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import api from "../api/api";
 import getCsrfToken from "../utils/getCsrfToken";
 import AdminLayout from "../layouts/AdminLayout";
@@ -107,6 +108,14 @@ function AdminOrders() {
                         </li>
                       ))}
                     </ul>
+                  </td>
+                  <td className="py-4 pr-4">
+                    <Link
+                      to={`/admin-orders/${order.id}`}
+                      className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition"
+                    >
+                      View
+                    </Link>
                   </td>
                 </tr>
               ))}
