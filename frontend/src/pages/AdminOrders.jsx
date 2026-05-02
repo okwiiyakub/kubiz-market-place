@@ -72,6 +72,7 @@ function AdminOrders() {
                 <th className="py-3 pr-4">Total</th>
                 <th className="py-3 pr-4">Status</th>
                 <th className="py-3 pr-4">Items</th>
+                <th className="py-3 pr-4">Action</th>
               </tr>
             </thead>
 
