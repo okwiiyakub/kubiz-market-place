@@ -13,6 +13,7 @@ function AdminProducts() {
     category: "all",
     active: "all",
     featured: "all",
+    stock: "all",
   });
 
   const fetchProducts = () => {
@@ -48,6 +49,14 @@ function AdminProducts() {
     ...new Set(products.map((product) => product.category_name).filter(Boolean)),
   ];
 
+  const lowStockProducts = products.filter(
+    (product) => product.stock_quantity > 0 && product.stock_quantity <= 5
+  );
+
+  const outOfStockProducts = products.filter(
+    (product) => product.stock_quantity <= 0
+  );
+
   const filteredProducts = products.filter((product) => {
     const matchesSearch = product.name
       .toLowerCase()
@@ -64,7 +73,21 @@ function AdminProducts() {
       filters.featured === "all" ||
       String(product.is_featured) === filters.featured;
 
-    return matchesSearch && matchesCategory && matchesActive && matchesFeatured;
+    const matchesStock =
+      filters.stock === "all" ||
+      (filters.stock === "low" &&
+        product.stock_quantity > 0 &&
+        product.stock_quantity <= 5) ||
+      (filters.stock === "out" && product.stock_quantity <= 0) ||
+      (filters.stock === "available" && product.stock_quantity > 5);
+
+    return (
+      matchesSearch &&
+      matchesCategory &&
+      matchesActive &&
+      matchesFeatured &&
+      matchesStock
+    );
   });
 
   const clearFilters = () => {
@@ -73,7 +96,32 @@ function AdminProducts() {
       category: "all",
       active: "all",
       featured: "all",
+      stock: "all",
     });
+  };
+
+  const getStockBadge = (quantity) => {
+    if (quantity <= 0) {
+      return (
+        <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold">
+          Out of Stock
+        </span>
+      );
+    }
+
+    if (quantity <= 5) {
+      return (
+        <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-bold">
+          Low Stock
+        </span>
+      );
+    }
+
+    return (
+      <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">
+        Available
+      </span>
+    );
   };
 
   return (
@@ -106,12 +154,35 @@ function AdminProducts() {
           </p>
         )}
 
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+            <p className="text-gray-500 text-sm mb-2">Total Products</p>
+            <h2 className="text-3xl font-extrabold text-gray-900">
+              {products.length}
+            </h2>
+          </div>
+
+          <div className="bg-yellow-50 rounded-2xl border border-yellow-100 shadow-sm p-6">
+            <p className="text-yellow-700 text-sm mb-2">Low Stock Products</p>
+            <h2 className="text-3xl font-extrabold text-yellow-700">
+              {lowStockProducts.length}
+            </h2>
+          </div>
+
+          <div className="bg-red-50 rounded-2xl border border-red-100 shadow-sm p-6">
+            <p className="text-red-700 text-sm mb-2">Out of Stock Products</p>
+            <h2 className="text-3xl font-extrabold text-red-700">
+              {outOfStockProducts.length}
+            </h2>
+          </div>
+        </section>
+
         <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-5">
             Product Filters
           </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
             <input
               type="text"
               placeholder="Search by product name..."
@@ -160,6 +231,19 @@ function AdminProducts() {
               <option value="true">Featured</option>
               <option value="false">Not Featured</option>
             </select>
+
+            <select
+              value={filters.stock}
+              onChange={(e) =>
+                setFilters({ ...filters, stock: e.target.value })
+              }
+              className="border border-gray-300 rounded-xl px-4 py-3"
+            >
+              <option value="all">All Stock</option>
+              <option value="available">Available</option>
+              <option value="low">Low Stock</option>
+              <option value="out">Out of Stock</option>
+            </select>
           </div>
 
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mt-5">
@@ -193,6 +277,7 @@ function AdminProducts() {
                 <th className="py-3 pr-4">Category</th>
                 <th className="py-3 pr-4">Price</th>
                 <th className="py-3 pr-4">Stock</th>
+                <th className="py-3 pr-4">Stock Status</th>
                 <th className="py-3 pr-4">Active</th>
                 <th className="py-3 pr-4">Featured</th>
                 <th className="py-3 pr-4">Actions</th>
@@ -210,7 +295,12 @@ function AdminProducts() {
                   <td className="py-4 pr-4 text-green-600 font-semibold">
                     UGX {Number(product.price).toLocaleString()}
                   </td>
-                  <td className="py-4 pr-4">{product.stock_quantity}</td>
+                  <td className="py-4 pr-4 font-semibold">
+                    {product.stock_quantity}
+                  </td>
+                  <td className="py-4 pr-4">
+                    {getStockBadge(product.stock_quantity)}
+                  </td>
                   <td className="py-4 pr-4">
                     {product.is_active ? "Yes" : "No"}
                   </td>
