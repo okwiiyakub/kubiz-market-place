@@ -13,10 +13,16 @@ export function CartProvider({ children }) {
   }, [cartItems]);
 
   const addToCart = (product) => {
+    if (product.stock_quantity <= 0) return;
+
     setCartItems((prevItems) => {
       const existingItem = prevItems.find((item) => item.id === product.id);
 
       if (existingItem) {
+        if (existingItem.quantity >= product.stock_quantity) {
+          return prevItems;
+        }
+
         return prevItems.map((item) =>
           item.id === product.id
             ? { ...item, quantity: item.quantity + 1 }
@@ -37,7 +43,7 @@ export function CartProvider({ children }) {
   const increaseQuantity = (productId) => {
     setCartItems((prevItems) =>
       prevItems.map((item) =>
-        item.id === productId
+        item.id === productId && item.quantity < item.stock_quantity
           ? { ...item, quantity: item.quantity + 1 }
           : item
       )
@@ -65,6 +71,8 @@ export function CartProvider({ children }) {
     0
   );
 
+  const hasOutOfStockItem = cartItems.some((item) => item.stock_quantity <= 0);
+
   return (
     <CartContext.Provider
       value={{
@@ -76,6 +84,7 @@ export function CartProvider({ children }) {
         clearCart,
         cartCount,
         cartTotal,
+        hasOutOfStockItem,
       }}
     >
       {children}
