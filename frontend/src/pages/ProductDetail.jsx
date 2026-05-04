@@ -66,6 +66,11 @@ function ProductDetail() {
       });
   }, [product]);
 
+  const isOutOfStock = product && product.stock_quantity <= 0;
+  const isLowStock =
+    product && product.stock_quantity > 0 && product.stock_quantity <= 5;
+  const reachedStockLimit = product && quantity >= product.stock_quantity;
+
   const increaseQuantity = () => {
     if (product && quantity < product.stock_quantity) {
       setQuantity(quantity + 1);
@@ -79,6 +84,18 @@ function ProductDetail() {
   };
 
   const handleAddToCart = () => {
+    if (!product || isOutOfStock) {
+      setAddedMessage("This product is currently out of stock.");
+      setTimeout(() => setAddedMessage(""), 2500);
+      return;
+    }
+
+    if (quantity > product.stock_quantity) {
+      setAddedMessage("Selected quantity exceeds available stock.");
+      setTimeout(() => setAddedMessage(""), 2500);
+      return;
+    }
+
     for (let i = 0; i < quantity; i++) {
       addToCart(product);
     }
@@ -133,8 +150,6 @@ function ProductDetail() {
   const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
     whatsappMessage
   )}`;
-
-  const isOutOfStock = product.stock_quantity <= 0;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -198,6 +213,12 @@ function ProductDetail() {
               >
                 {isOutOfStock ? "Out of Stock" : "In Stock"}
               </span>
+
+              {isLowStock && (
+                <span className="bg-yellow-100 text-yellow-700 px-4 py-2 rounded-full text-sm font-semibold">
+                  Low Stock
+                </span>
+              )}
             </div>
 
             <h1 className="text-4xl lg:text-5xl font-extrabold text-gray-900 mb-4 leading-tight">
@@ -217,6 +238,18 @@ function ProductDetail() {
               <p className="text-2xl font-bold text-gray-900">
                 {product.stock_quantity} item(s)
               </p>
+
+              {isLowStock && (
+                <p className="bg-yellow-50 text-yellow-700 px-4 py-2 rounded-xl text-sm mt-4">
+                  Hurry up. Only {product.stock_quantity} item(s) left in stock.
+                </p>
+              )}
+
+              {isOutOfStock && (
+                <p className="bg-red-50 text-red-700 px-4 py-2 rounded-xl text-sm mt-4">
+                  This product is currently unavailable.
+                </p>
+              )}
             </div>
 
             {!isOutOfStock && (
@@ -228,7 +261,8 @@ function ProductDetail() {
                 <div className="flex items-center gap-4">
                   <button
                     onClick={decreaseQuantity}
-                    className="w-12 h-12 rounded-xl border border-gray-300 text-xl font-bold hover:bg-gray-100"
+                    disabled={quantity <= 1}
+                    className="w-12 h-12 rounded-xl border border-gray-300 text-xl font-bold hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     -
                   </button>
@@ -239,16 +273,29 @@ function ProductDetail() {
 
                   <button
                     onClick={increaseQuantity}
-                    className="w-12 h-12 rounded-xl border border-gray-300 text-xl font-bold hover:bg-gray-100"
+                    disabled={reachedStockLimit}
+                    className="w-12 h-12 rounded-xl border border-gray-300 text-xl font-bold hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     +
                   </button>
                 </div>
+
+                {reachedStockLimit && (
+                  <p className="bg-yellow-50 text-yellow-700 px-4 py-2 rounded-xl text-sm mt-4">
+                    You have reached the available stock limit for this product.
+                  </p>
+                )}
               </div>
             )}
 
             {addedMessage && (
-              <p className="bg-green-100 text-green-700 px-4 py-3 rounded-xl mb-5">
+              <p
+                className={`px-4 py-3 rounded-xl mb-5 ${
+                  addedMessage.includes("added")
+                    ? "bg-green-100 text-green-700"
+                    : "bg-red-100 text-red-700"
+                }`}
+              >
                 {addedMessage}
               </p>
             )}
@@ -256,7 +303,7 @@ function ProductDetail() {
             <div className="flex flex-col sm:flex-row gap-4">
               <button
                 onClick={handleAddToCart}
-                disabled={isOutOfStock}
+                disabled={isOutOfStock || quantity > product.stock_quantity}
                 className="flex-1 bg-blue-600 text-white px-6 py-4 rounded-xl font-bold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isOutOfStock ? "Out of Stock" : "Add to Cart"}
