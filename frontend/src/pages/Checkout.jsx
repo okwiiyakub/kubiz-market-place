@@ -25,6 +25,12 @@ function Checkout() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const invalidStockItems = cartItems.filter(
+    (item) => item.stock_quantity <= 0 || item.quantity > item.stock_quantity
+  );
+
+  const hasInvalidStock = invalidStockItems.length > 0;
+
   useEffect(() => {
     if (customer) {
       setFormData((prevData) => ({
@@ -57,6 +63,11 @@ function Checkout() {
 
     if (cartItems.length === 0) {
       setError("Your cart is empty.");
+      return;
+    }
+
+    if (hasInvalidStock) {
+      setError("Some items in your cart are out of stock or exceed available stock. Please return to cart and adjust them.");
       return;
     }
 
@@ -108,7 +119,8 @@ function Checkout() {
 
         {customer && (
           <div className="bg-blue-50 border border-blue-100 text-blue-700 rounded-2xl px-6 py-4 mb-8">
-            You are checking out as <strong>{customer.full_name}</strong>. Your name and email have been filled automatically.
+            You are checking out as <strong>{customer.full_name}</strong>. Your
+            name and email have been filled automatically.
           </div>
         )}
 
@@ -139,6 +151,23 @@ function Checkout() {
                 <p className="bg-red-100 text-red-600 px-4 py-3 rounded-xl mb-6">
                   {error}
                 </p>
+              )}
+
+              {hasInvalidStock && (
+                <div className="bg-red-50 border border-red-100 text-red-700 rounded-2xl p-5 mb-6">
+                  <p className="font-bold mb-2">Stock issue detected</p>
+                  <p className="text-sm mb-3">
+                    Some items are unavailable or exceed current stock. Please go
+                    back to your cart and adjust them before placing the order.
+                  </p>
+
+                  <Link
+                    to="/cart"
+                    className="inline-block bg-red-600 text-white px-5 py-2 rounded-xl font-semibold hover:bg-red-700 transition"
+                  >
+                    Return to Cart
+                  </Link>
+                </div>
               )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -229,8 +258,8 @@ function Checkout() {
 
               <button
                 type="submit"
-                disabled={loading}
-                className="w-full bg-blue-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-700 transition disabled:opacity-50"
+                disabled={loading || hasInvalidStock}
+                className="w-full bg-blue-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? "Placing Order..." : "Place Order"}
               </button>
@@ -242,25 +271,48 @@ function Checkout() {
               </h2>
 
               <div className="space-y-4 mb-6">
-                {cartItems.map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex justify-between items-start border-b border-gray-100 pb-4"
-                  >
-                    <div>
-                      <h3 className="font-semibold text-gray-800">
-                        {item.name}
-                      </h3>
-                      <p className="text-sm text-gray-500">
-                        Qty: {item.quantity}
-                      </p>
-                    </div>
+                {cartItems.map((item) => {
+                  const isOutOfStock = item.stock_quantity <= 0;
+                  const exceedsStock = item.quantity > item.stock_quantity;
 
-                    <p className="font-bold text-green-600">
-                      UGX {(Number(item.price) * item.quantity).toLocaleString()}
-                    </p>
-                  </div>
-                ))}
+                  return (
+                    <div
+                      key={item.id}
+                      className="border-b border-gray-100 pb-4"
+                    >
+                      <div className="flex justify-between items-start gap-4">
+                        <div>
+                          <h3 className="font-semibold text-gray-800">
+                            {item.name}
+                          </h3>
+                          <p className="text-sm text-gray-500">
+                            Qty: {item.quantity}
+                          </p>
+                          <p className="text-xs text-gray-400">
+                            Available: {item.stock_quantity}
+                          </p>
+                        </div>
+
+                        <p className="font-bold text-green-600">
+                          UGX{" "}
+                          {(Number(item.price) * item.quantity).toLocaleString()}
+                        </p>
+                      </div>
+
+                      {isOutOfStock && (
+                        <p className="bg-red-50 text-red-700 px-3 py-2 rounded-xl text-xs mt-3">
+                          This item is out of stock.
+                        </p>
+                      )}
+
+                      {exceedsStock && !isOutOfStock && (
+                        <p className="bg-yellow-50 text-yellow-700 px-3 py-2 rounded-xl text-xs mt-3">
+                          Quantity exceeds available stock.
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
 
               <div className="flex justify-between items-center text-xl font-extrabold text-gray-900 mb-6">
