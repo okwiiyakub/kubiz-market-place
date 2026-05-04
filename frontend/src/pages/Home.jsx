@@ -11,6 +11,7 @@ function Home() {
   const [message, setMessage] = useState("Loading...");
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
+  const [recentlyViewed, setRecentlyViewed] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [error, setError] = useState("");
@@ -23,6 +24,10 @@ function Home() {
     api.get("categories/")
       .then((response) => setCategories(response.data))
       .catch(() => setError("Failed to load categories."));
+
+    const savedViewed =
+      JSON.parse(localStorage.getItem("kubiz-recently-viewed")) || [];
+    setRecentlyViewed(savedViewed);
   }, []);
 
   useEffect(() => {
@@ -49,6 +54,11 @@ function Home() {
   const clearFilters = () => {
     setSearchTerm("");
     setSelectedCategory("");
+  };
+
+  const clearRecentlyViewed = () => {
+    localStorage.removeItem("kubiz-recently-viewed");
+    setRecentlyViewed([]);
   };
 
   const isFiltering = searchTerm || selectedCategory;
@@ -140,6 +150,34 @@ function Home() {
                 ))}
               </div>
             </section>
+
+            {recentlyViewed.length > 0 && (
+              <section className="mb-16">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+                  <div>
+                    <p className="text-blue-600 font-semibold uppercase tracking-wide text-sm">
+                      Continue browsing
+                    </p>
+                    <h2 className="text-3xl font-extrabold text-gray-900">
+                      Recently Viewed Products
+                    </h2>
+                  </div>
+
+                  <button
+                    onClick={clearRecentlyViewed}
+                    className="bg-gray-100 text-gray-700 px-5 py-2.5 rounded-xl font-semibold hover:bg-gray-200 transition"
+                  >
+                    Clear Recently Viewed
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                  {recentlyViewed.map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
+                </div>
+              </section>
+            )}
 
             {latestProducts.length > 0 && (
               <section className="mb-16">
