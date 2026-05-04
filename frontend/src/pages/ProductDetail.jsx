@@ -21,15 +21,30 @@ function ProductDetail() {
   useEffect(() => {
     api.get(`products/${slug}/`)
       .then((response) => {
-        setProduct(response.data);
+        const viewedProduct = response.data;
+
+        setProduct(viewedProduct);
         setLoading(false);
+        setQuantity(1);
+
+        const savedViewed =
+          JSON.parse(localStorage.getItem("kubiz-recently-viewed")) || [];
+
+        const updatedViewed = [
+          viewedProduct,
+          ...savedViewed.filter((item) => item.id !== viewedProduct.id),
+        ].slice(0, 4);
+
+        localStorage.setItem(
+          "kubiz-recently-viewed",
+          JSON.stringify(updatedViewed)
+        );
       })
       .catch(() => {
         setError("Failed to load product details.");
         setLoading(false);
       });
   }, [slug]);
-
 
   useEffect(() => {
     if (!product) return;
@@ -111,7 +126,7 @@ function ProductDetail() {
       : `http://localhost:8000${product.image}`
     : null;
 
-  const whatsappNumber = "2567XXXXXXXX"; // replace with your real WhatsApp number
+  const whatsappNumber = "2567XXXXXXXX";
 
   const whatsappMessage = `Hello, I am interested in ${product.name} on Kubiz Market Place. Price: UGX ${Number(product.price).toLocaleString()}. Please share more details.`;
 
@@ -130,10 +145,7 @@ function ProductDetail() {
           <Link to="/" className="hover:text-blue-600">
             Home
           </Link>{" "}
-          /{" "}
-          <span className="text-gray-800 font-medium">
-            {product.name}
-          </span>
+          / <span className="text-gray-800 font-medium">{product.name}</span>
         </div>
 
         <section className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden grid grid-cols-1 lg:grid-cols-2 gap-10 p-6 lg:p-10">
@@ -303,7 +315,6 @@ function ProductDetail() {
             </div>
           </section>
         )}
-
       </main>
 
       <Footer />
