@@ -12,6 +12,7 @@ function AdminProductForm() {
 
   const [categories, setCategories] = useState([]);
   const [error, setError] = useState("");
+  const [validationErrors, setValidationErrors] = useState([]);
   const [loading, setLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
   const [imageName, setImageName] = useState("");
@@ -37,14 +38,33 @@ function AdminProductForm() {
       .replace(/-+/g, "-");
   };
 
+  const validateForm = () => {
+    const errors = [];
+
+    if (!formData.category) errors.push("Please select a category.");
+    if (!formData.name.trim()) errors.push("Product name is required.");
+    if (!formData.slug.trim()) errors.push("Product slug is required.");
+    if (!formData.price || Number(formData.price) <= 0) {
+      errors.push("Price must be greater than 0.");
+    }
+    if (formData.stock_quantity === "" || Number(formData.stock_quantity) < 0) {
+      errors.push("Stock quantity cannot be negative.");
+    }
+    if (!formData.description.trim()) {
+      errors.push("Product description is recommended.");
+    }
+    if (!isEditMode && !formData.image) {
+      errors.push("Please upload a product image.");
+    }
+
+    setValidationErrors(errors);
+    return errors.length === 0;
+  };
+
   useEffect(() => {
     api.get("categories/")
-      .then((response) => {
-        setCategories(response.data);
-      })
-      .catch(() => {
-        setError("Failed to load categories.");
-      });
+      .then((response) => setCategories(response.data))
+      .catch(() => setError("Failed to load categories."));
   }, []);
 
   useEffect(() => {
@@ -74,14 +94,14 @@ function AdminProductForm() {
             setImageName("Current product image");
           }
         })
-        .catch(() => {
-          setError("Failed to load product details.");
-        });
+        .catch(() => setError("Failed to load product details."));
     }
   }, [id, isEditMode]);
 
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;
+
+    setValidationErrors([]);
 
     if (type === "file") {
       const file = files[0];
@@ -105,7 +125,6 @@ function AdminProductForm() {
         name: value,
         slug: generateSlug(value),
       });
-
       return;
     }
 
@@ -114,7 +133,6 @@ function AdminProductForm() {
         ...formData,
         slug: generateSlug(value),
       });
-
       return;
     }
 
@@ -136,9 +154,13 @@ function AdminProductForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+
+    if (!validateForm()) {
+      return;
+    }
 
     setLoading(true);
-    setError("");
 
     try {
       await api.get("csrf/");
@@ -160,15 +182,11 @@ function AdminProductForm() {
 
       if (isEditMode) {
         await api.patch(`products/admin/manage/${id}/`, productData, {
-          headers: {
-            "X-CSRFToken": csrfToken,
-          },
+          headers: { "X-CSRFToken": csrfToken },
         });
       } else {
         await api.post("products/admin/manage/", productData, {
-          headers: {
-            "X-CSRFToken": csrfToken,
-          },
+          headers: { "X-CSRFToken": csrfToken },
         });
       }
 
@@ -206,12 +224,23 @@ function AdminProductForm() {
             </p>
           )}
 
+          {validationErrors.length > 0 && (
+            <div className="bg-yellow-50 border border-yellow-100 text-yellow-700 rounded-2xl p-5 mb-6">
+              <p className="font-bold mb-3">Please fix the following:</p>
+              <ul className="list-disc pl-5 space-y-1">
+                {validationErrors.map((item, index) => (
+                  <li key={index}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Category
+                    Category *
                   </label>
                   <select
                     name="category"
@@ -230,7 +259,7 @@ function AdminProductForm() {
 
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Product Name
+                    Product Name *
                   </label>
                   <input
                     type="text"
@@ -244,7 +273,7 @@ function AdminProductForm() {
 
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Slug
+                    Slug *
                   </label>
                   <input
                     type="text"
@@ -261,7 +290,7 @@ function AdminProductForm() {
 
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Price
+                    Price *
                   </label>
                   <input
                     type="number"
@@ -270,12 +299,13 @@ function AdminProductForm() {
                     onChange={handleChange}
                     className="w-full border border-gray-300 rounded-xl px-4 py-3"
                     placeholder="Enter price"
+                    min="1"
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Stock Quantity
+                    Stock Quantity *
                   </label>
                   <input
                     type="number"
@@ -284,6 +314,7 @@ function AdminProductForm() {
                     onChange={handleChange}
                     className="w-full border border-gray-300 rounded-xl px-4 py-3"
                     placeholder="Enter stock quantity"
+                    min="0"
                   />
                 </div>
               </div>
@@ -327,7 +358,7 @@ function AdminProductForm() {
 
             <div className="bg-gray-50 rounded-2xl border border-gray-100 p-5 h-fit">
               <h2 className="text-xl font-bold text-gray-900 mb-2">
-                Product Image
+                Product Image {!isEditMode && "*"}
               </h2>
               <p className="text-sm text-gray-500 mb-4">
                 Upload a clear product image. Recommended image size is square or landscape.
@@ -351,9 +382,7 @@ function AdminProductForm() {
                     />
                   </div>
 
-                  <p className="text-sm text-gray-600 mb-3">
-                    {imageName}
-                  </p>
+                  <p className="text-sm text-gray-600 mb-3">{imageName}</p>
 
                   {!isEditMode && (
                     <button
