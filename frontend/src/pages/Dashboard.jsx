@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../api/api";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import AdminLayout from "../layouts/AdminLayout";
 
 import {
@@ -22,6 +22,7 @@ import {
 function Dashboard() {
   const navigate = useNavigate();
   const [summary, setSummary] = useState(null);
+  const [adminProducts, setAdminProducts] = useState([]);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -32,9 +33,17 @@ function Dashboard() {
       .catch(() => {
         navigate("/");
       });
-  }, []);
 
-  if (error) {
+    api.get("products/admin/manage/")
+      .then((response) => {
+        setAdminProducts(response.data);
+      })
+      .catch(() => {
+        setError("Failed to load product stock alerts.");
+      });
+  }, [navigate]);
+
+  if (error && !summary) {
     return (
       <AdminLayout>
         <div className="max-w-7xl mx-auto">
@@ -54,6 +63,14 @@ function Dashboard() {
     );
   }
 
+  const lowStockProducts = adminProducts.filter(
+    (product) => product.stock_quantity > 0 && product.stock_quantity <= 5
+  );
+
+  const outOfStockProducts = adminProducts.filter(
+    (product) => product.stock_quantity <= 0
+  );
+
   const orderCards = [
     { label: "Total Orders", value: summary.total_orders },
     { label: "Pending Orders", value: summary.pending_orders },
@@ -67,9 +84,10 @@ function Dashboard() {
     { label: "Total Products", value: summary.total_products },
     { label: "Active Products", value: summary.active_products },
     { label: "Inactive Products", value: summary.inactive_products },
-    { label: "Low Stock Products", value: summary.low_stock_products },
+    { label: "Low Stock Products", value: lowStockProducts.length },
+    { label: "Out of Stock Products", value: outOfStockProducts.length },
   ];
-  
+
   const orderStatusData = [
     { name: "Pending", value: summary.pending_orders },
     { name: "Confirmed", value: summary.confirmed_orders },
@@ -79,13 +97,10 @@ function Dashboard() {
   ];
 
   const COLORS = ["#f59e0b", "#3b82f6", "#8b5cf6", "#22c55e", "#ef4444"];
-  
 
   return (
     <AdminLayout>
       <div className="max-w-7xl mx-auto">
-
-        {/* HEADER */}
         <div className="mb-10">
           <p className="text-blue-600 font-semibold uppercase tracking-wide text-sm">
             Business Overview
@@ -93,10 +108,105 @@ function Dashboard() {
           <h1 className="text-4xl font-extrabold text-gray-900">
             Marketplace Dashboard
           </h1>
+          <p className="text-gray-500 mt-2">
+            Monitor orders, revenue, products, stock alerts, and recent activity.
+          </p>
         </div>
 
+        {error && (
+          <p className="bg-yellow-50 border border-yellow-100 text-yellow-700 px-4 py-3 rounded-xl mb-8">
+            {error}
+          </p>
+        )}
 
-        {/* ORDER ANALYTICS */}
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <p className="text-gray-500 text-sm mb-2">Total Products</p>
+            <h2 className="text-3xl font-extrabold text-gray-900">
+              {summary.total_products}
+            </h2>
+          </div>
+
+          <div className="bg-yellow-50 rounded-2xl shadow-sm border border-yellow-100 p-6">
+            <p className="text-yellow-700 text-sm mb-2">
+              Low Stock Products
+            </p>
+            <h2 className="text-3xl font-extrabold text-yellow-700">
+              {lowStockProducts.length}
+            </h2>
+          </div>
+
+          <div className="bg-red-50 rounded-2xl shadow-sm border border-red-100 p-6">
+            <p className="text-red-700 text-sm mb-2">
+              Out of Stock Products
+            </p>
+            <h2 className="text-3xl font-extrabold text-red-700">
+              {outOfStockProducts.length}
+            </h2>
+          </div>
+        </section>
+
+        {(lowStockProducts.length > 0 || outOfStockProducts.length > 0) && (
+          <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-12">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">
+                  Inventory Alerts
+                </h2>
+                <p className="text-gray-500 mt-1">
+                  Products that may need urgent restocking.
+                </p>
+              </div>
+
+              <Link
+                to="/admin-products"
+                className="bg-blue-600 text-white px-5 py-3 rounded-xl font-semibold hover:bg-blue-700 transition"
+              >
+                Open Product Manager
+              </Link>
+            </div>
+
+            <div className="space-y-3">
+              {[...outOfStockProducts, ...lowStockProducts].slice(0, 8).map((product) => (
+                <div
+                  key={product.id}
+                  className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 border border-gray-100 rounded-xl p-4"
+                >
+                  <div>
+                    <p className="font-bold text-gray-900">{product.name}</p>
+                    <p className="text-sm text-gray-500">
+                      {product.category_name}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <span className="font-semibold text-gray-700">
+                      Stock: {product.stock_quantity}
+                    </span>
+
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-bold ${
+                        product.stock_quantity <= 0
+                          ? "bg-red-100 text-red-700"
+                          : "bg-yellow-100 text-yellow-700"
+                      }`}
+                    >
+                      {product.stock_quantity <= 0 ? "Out of Stock" : "Low Stock"}
+                    </span>
+
+                    <Link
+                      to={`/admin-products/edit/${product.id}`}
+                      className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-semibold hover:bg-gray-200 transition"
+                    >
+                      Edit
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
         <section className="mb-12">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">
             Order Analytics
@@ -117,8 +227,6 @@ function Dashboard() {
           </div>
         </section>
 
-
-        {/* ORDERS BY STATUS CHART */}
         <section className="mb-12">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">
             Orders by Status
@@ -150,13 +258,12 @@ function Dashboard() {
           </div>
         </section>
 
-        {/* PRODUCT ANALYTICS */}
         <section className="mb-12">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">
             Product Analytics
           </h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
             {productCards.map((card, index) => (
               <div
                 key={index}
@@ -171,8 +278,6 @@ function Dashboard() {
           </div>
         </section>
 
-
-        {/* CATEGORY DISTRIBUTION */}
         <section className="mb-12">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">
             Products by Category
@@ -193,8 +298,6 @@ function Dashboard() {
           </div>
         </section>
 
-
-        {/* PRODUCTS BY CATEGORY BAR CHART */}
         <section className="mb-12">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">
             Products by Category Chart
@@ -214,8 +317,6 @@ function Dashboard() {
           </div>
         </section>
 
-
-        {/* REVENUE */}
         <section className="mb-12">
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
             <p className="text-gray-500 text-sm mb-2">
@@ -228,7 +329,6 @@ function Dashboard() {
           </div>
         </section>
 
-        {/* MONTHLY SALES TREND */}
         <section className="mb-12">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">
             Monthly Sales Trend
@@ -262,8 +362,6 @@ function Dashboard() {
           </div>
         </section>
 
-
-        {/* RECENT ORDERS */}
         <section>
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">
@@ -307,7 +405,6 @@ function Dashboard() {
             )}
           </div>
         </section>
-
       </div>
     </AdminLayout>
   );
