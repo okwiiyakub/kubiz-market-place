@@ -364,9 +364,23 @@ function Dashboard() {
 
         <section>
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">
-              Recent Orders
-            </h2>
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">
+                  Recent Orders
+                </h2>
+                <p className="text-gray-500 mt-1">
+                  Quick access to the latest customer orders.
+                </p>
+              </div>
+
+              <Link
+                to="/admin-orders"
+                className="bg-blue-600 text-white px-5 py-3 rounded-xl font-semibold hover:bg-blue-700 transition"
+              >
+                View All Orders
+              </Link>
+            </div>
 
             {summary.recent_orders.length === 0 ? (
               <p className="text-gray-600">No recent orders found.</p>
@@ -381,6 +395,7 @@ function Dashboard() {
                       <th className="py-3">City</th>
                       <th className="py-3">Total</th>
                       <th className="py-3">Status</th>
+                      <th className="py-3">Action</th>
                     </tr>
                   </thead>
 
@@ -396,6 +411,14 @@ function Dashboard() {
                         </td>
                         <td className="py-4 capitalize">
                           {order.status}
+                        </td>
+                        <td className="py-4">
+                          <Link
+                            to={`/admin-orders/${order.id}`}
+                            className="bg-blue-100 text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-200 transition"
+                          >
+                            View
+                          </Link>
                         </td>
                       </tr>
                     ))}
