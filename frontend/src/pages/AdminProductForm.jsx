@@ -28,6 +28,15 @@ function AdminProductForm() {
     is_featured: false,
   });
 
+  const generateSlug = (value) => {
+    return value
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-");
+  };
+
   useEffect(() => {
     api.get("categories/")
       .then((response) => {
@@ -86,6 +95,25 @@ function AdminProductForm() {
         setImagePreview(URL.createObjectURL(file));
         setImageName(file.name);
       }
+
+      return;
+    }
+
+    if (name === "name") {
+      setFormData({
+        ...formData,
+        name: value,
+        slug: generateSlug(value),
+      });
+
+      return;
+    }
+
+    if (name === "slug") {
+      setFormData({
+        ...formData,
+        slug: generateSlug(value),
+      });
 
       return;
     }
@@ -210,7 +238,7 @@ function AdminProductForm() {
                     value={formData.name}
                     onChange={handleChange}
                     className="w-full border border-gray-300 rounded-xl px-4 py-3"
-                    placeholder="Example: Lenovo Laptop"
+                    placeholder="Example: Lenovo ThinkPad X1 Yoga"
                   />
                 </div>
 
@@ -224,10 +252,10 @@ function AdminProductForm() {
                     value={formData.slug}
                     onChange={handleChange}
                     className="w-full border border-gray-300 rounded-xl px-4 py-3"
-                    placeholder="example: lenovo-laptop"
+                    placeholder="example: lenovo-thinkpad-x1-yoga"
                   />
                   <p className="text-xs text-gray-500 mt-2">
-                    Use lowercase letters and hyphens only.
+                    This is auto-generated from the product name, but you can still edit it.
                   </p>
                 </div>
 
