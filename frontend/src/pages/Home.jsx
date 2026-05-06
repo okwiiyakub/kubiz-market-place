@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import api from "../api/api";
 import Navbar from "../components/Navbar";
 import Hero from "../components/Hero";
@@ -8,12 +8,16 @@ import Footer from "../components/Footer";
 import FloatingWhatsAppButton from "../components/FloatingWhatsAppButton";
 
 function Home() {
+  const PRODUCTS_PER_PAGE = 6;
+
   const [message, setMessage] = useState("Loading...");
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
   const [recentlyViewed, setRecentlyViewed] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [sortOption, setSortOption] = useState("newest");
+  const [currentPage, setCurrentPage] = useState(1);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -47,13 +51,18 @@ function Home() {
     }
 
     api.get(endpoint)
-      .then((response) => setProducts(response.data))
+      .then((response) => {
+        setProducts(response.data);
+        setCurrentPage(1);
+      })
       .catch(() => setError("Failed to load products."));
   }, [searchTerm, selectedCategory]);
 
   const clearFilters = () => {
     setSearchTerm("");
     setSelectedCategory("");
+    setSortOption("newest");
+    setCurrentPage(1);
   };
 
   const clearRecentlyViewed = () => {
@@ -63,11 +72,41 @@ function Home() {
 
   const isFiltering = searchTerm || selectedCategory;
 
+  const sortedProducts = useMemo(() => {
+    const productCopy = [...products];
+
+    if (sortOption === "price-low") {
+      return productCopy.sort((a, b) => Number(a.price) - Number(b.price));
+    }
+
+    if (sortOption === "price-high") {
+      return productCopy.sort((a, b) => Number(b.price) - Number(a.price));
+    }
+
+    if (sortOption === "name-az") {
+      return productCopy.sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    return productCopy.sort((a, b) => b.id - a.id);
+  }, [products, sortOption]);
+
+  const totalPages = Math.ceil(sortedProducts.length / PRODUCTS_PER_PAGE);
+
+  const paginatedProducts = sortedProducts.slice(
+    (currentPage - 1) * PRODUCTS_PER_PAGE,
+    currentPage * PRODUCTS_PER_PAGE
+  );
+
   const featuredProducts = products
     .filter((product) => product.is_featured)
     .slice(0, 3);
 
   const latestProducts = products.slice(0, 6);
+
+  const handleSortChange = (e) => {
+    setSortOption(e.target.value);
+    setCurrentPage(1);
+  };
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -202,66 +241,73 @@ function Home() {
 
         <section id="products">
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-8">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
               <div>
                 <p className="text-blue-600 font-semibold uppercase tracking-wide text-sm">
                   {isFiltering ? "Search results" : "Fresh listings"}
                 </p>
+
                 <h2 className="text-3xl font-extrabold text-gray-900">
                   {isFiltering ? "Filtered Products" : "All Products"}
                 </h2>
 
-                {isFiltering && (
-                  <p className="text-gray-500 mt-2">
-                    Showing{" "}
-                    <span className="font-bold text-gray-900">
-                      {products.length}
-                    </span>{" "}
-                    result(s)
-                    {searchTerm && (
-                      <>
-                        {" "}for{" "}
-                        <span className="font-bold text-blue-600">
-                          “{searchTerm}”
-                        </span>
-                      </>
-                    )}
-                  </p>
-                )}
+                <p className="text-gray-500 mt-2">
+                  Showing{" "}
+                  <span className="font-bold text-gray-900">
+                    {sortedProducts.length}
+                  </span>{" "}
+                  product(s)
+                </p>
               </div>
 
-              {isFiltering && (
-                <div className="flex flex-wrap items-center gap-3">
-                  {searchTerm && (
-                    <span className="bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium">
-                      Search: {searchTerm}
-                    </span>
-                  )}
+              <div className="flex flex-col sm:flex-row gap-3">
+                <select
+                  value={sortOption}
+                  onChange={handleSortChange}
+                  className="border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="newest">Newest First</option>
+                  <option value="price-low">Price: Low to High</option>
+                  <option value="price-high">Price: High to Low</option>
+                  <option value="name-az">Name: A to Z</option>
+                </select>
 
-                  {selectedCategory && (
-                    <span className="bg-green-100 text-green-700 px-4 py-2 rounded-full text-sm font-medium">
-                      Category: {selectedCategory}
-                    </span>
-                  )}
-
+                {(searchTerm || selectedCategory || sortOption !== "newest") && (
                   <button
                     onClick={clearFilters}
-                    className="bg-red-100 text-red-600 px-4 py-2 rounded-full text-sm font-medium hover:bg-red-200 transition"
+                    className="bg-red-100 text-red-600 px-5 py-3 rounded-xl font-semibold hover:bg-red-200 transition"
                   >
-                    Clear Search
+                    Clear Filters
                   </button>
-                </div>
-              )}
+                )}
+              </div>
             </div>
+
+            {(searchTerm || selectedCategory) && (
+              <div className="flex flex-wrap gap-3 mt-5">
+                {searchTerm && (
+                  <span className="bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium">
+                    Search: {searchTerm}
+                  </span>
+                )}
+
+                {selectedCategory && (
+                  <span className="bg-green-100 text-green-700 px-4 py-2 rounded-full text-sm font-medium">
+                    Category: {selectedCategory}
+                  </span>
+                )}
+              </div>
+            )}
           </div>
 
-          {products.length === 0 ? (
+          {sortedProducts.length === 0 ? (
             <div className="bg-white rounded-2xl p-10 text-center shadow-sm border border-gray-100">
               <h3 className="text-2xl font-bold text-gray-900 mb-3">
                 No products found
               </h3>
+
               <p className="text-gray-600 mb-6">
-                Try using a different search term or browse all available products.
+                Try using a different search term, category, or sorting option.
               </p>
 
               <button
@@ -272,11 +318,46 @@ function Home() {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {products.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                {paginatedProducts.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+
+              {totalPages > 1 && (
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-10 bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
+                  <p className="text-gray-600">
+                    Page{" "}
+                    <span className="font-bold text-gray-900">
+                      {currentPage}
+                    </span>{" "}
+                    of{" "}
+                    <span className="font-bold text-gray-900">
+                      {totalPages}
+                    </span>
+                  </p>
+
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => setCurrentPage((page) => page - 1)}
+                      disabled={currentPage === 1}
+                      className="px-5 py-2.5 rounded-xl border border-gray-300 text-gray-700 font-semibold hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Previous
+                    </button>
+
+                    <button
+                      onClick={() => setCurrentPage((page) => page + 1)}
+                      disabled={currentPage === totalPages}
+                      className="px-5 py-2.5 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </section>
       </main>
