@@ -1,15 +1,24 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 
 function Navbar({ onSearch }) {
   const { cartItems } = useCart();
+  const { customer, logoutCustomer } = useAuth();
+  const location = useLocation();
+
   const [searchText, setSearchText] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
-  const { customer, logoutCustomer } = useAuth();
 
   const isAdmin = localStorage.getItem("isAdmin") === "true";
+
+  const cartCount = cartItems.reduce(
+    (total, item) => total + Number(item.quantity || 1),
+    0
+  );
+
+  const isActive = (path) => location.pathname === path;
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -17,6 +26,8 @@ function Navbar({ onSearch }) {
     if (onSearch) {
       onSearch(searchText);
     }
+
+    setMenuOpen(false);
   };
 
   const closeMenu = () => {
@@ -32,6 +43,11 @@ function Navbar({ onSearch }) {
     logoutCustomer();
     closeMenu();
   };
+
+  const linkClass = (path) =>
+    `hover:text-blue-600 transition ${
+      isActive(path) ? "text-blue-600 font-bold" : "text-gray-700"
+    }`;
 
   return (
     <nav className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
@@ -51,12 +67,12 @@ function Navbar({ onSearch }) {
               placeholder="Search products..."
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
-              className="flex-1 border border-gray-300 rounded-l-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex-1 border border-gray-300 rounded-l-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
 
             <button
               type="submit"
-              className="bg-blue-600 text-white px-6 rounded-r-xl hover:bg-blue-700 transition"
+              className="bg-blue-600 text-white px-6 rounded-r-xl hover:bg-blue-700 transition font-semibold"
             >
               Search
             </button>
@@ -69,18 +85,18 @@ function Navbar({ onSearch }) {
             {menuOpen ? "Close" : "Menu"}
           </button>
 
-          <div className="hidden md:flex items-center gap-6 text-gray-700 font-medium">
-            <Link to="/" className="hover:text-blue-600 transition">
+          <div className="hidden md:flex items-center gap-6 font-medium">
+            <Link to="/" className={linkClass("/")}>
               Home
             </Link>
 
             {!isAdmin && (
               <>
-                <a href="/#products" className="hover:text-blue-600 transition">
+                <a href="/#products" className="text-gray-700 hover:text-blue-600 transition">
                   Products
                 </a>
 
-                <a href="/#categories" className="hover:text-blue-600 transition">
+                <a href="/#categories" className="text-gray-700 hover:text-blue-600 transition">
                   Categories
                 </a>
               </>
@@ -88,36 +104,41 @@ function Navbar({ onSearch }) {
 
             {isAdmin && (
               <>
-                <Link to="/dashboard" className="hover:text-blue-600 transition">
+                <Link to="/dashboard" className={linkClass("/dashboard")}>
                   Dashboard
                 </Link>
 
-                <Link to="/admin-products" className="hover:text-blue-600 transition">
-                  Admin Products
+                <Link to="/admin-products" className={linkClass("/admin-products")}>
+                  Products
                 </Link>
 
-                <Link to="/admin-orders" className="hover:text-blue-600 transition">
-                  Admin Orders
+                <Link to="/admin-orders" className={linkClass("/admin-orders")}>
+                  Orders
                 </Link>
 
-                <Link to="/admin-reports" className="hover:text-blue-600 transition">
+                <Link to="/admin-reports" className={linkClass("/admin-reports")}>
                   Reports
                 </Link>
               </>
             )}
 
-            <Link to="/cart" className="hover:text-blue-600 transition">
-              Cart ({cartItems.length})
+            <Link to="/cart" className="relative text-gray-700 hover:text-blue-600 transition">
+              Cart
+              {cartCount > 0 && (
+                <span className="ml-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
+                  {cartCount}
+                </span>
+              )}
             </Link>
 
             {!isAdmin && customer && (
               <>
-                <Link to="/my-orders" className="hover:text-blue-600 transition">
+                <Link to="/my-orders" className={linkClass("/my-orders")}>
                   My Orders
                 </Link>
 
-                <Link to="/account" className="hover:text-blue-600 transition">
-                  My Account
+                <Link to="/account" className={linkClass("/account")}>
+                  Account
                 </Link>
 
                 <button
@@ -131,7 +152,7 @@ function Navbar({ onSearch }) {
 
             {!isAdmin && !customer && (
               <>
-                <Link to="/login" className="hover:text-blue-600 transition">
+                <Link to="/login" className={linkClass("/login")}>
                   Login
                 </Link>
 
@@ -155,6 +176,12 @@ function Navbar({ onSearch }) {
           </div>
         </div>
 
+        {customer && !isAdmin && (
+          <p className="hidden md:block text-sm text-gray-500 mt-2">
+            Welcome, <span className="font-semibold">{customer.full_name}</span>
+          </p>
+        )}
+
         {menuOpen && (
           <div className="md:hidden mt-5 bg-gray-50 rounded-2xl border border-gray-100 p-5">
             <form onSubmit={handleSubmit} className="flex mb-5">
@@ -168,12 +195,18 @@ function Navbar({ onSearch }) {
 
               <button
                 type="submit"
-                onClick={closeMenu}
                 className="bg-blue-600 text-white px-5 rounded-r-xl hover:bg-blue-700 transition"
               >
                 Search
               </button>
             </form>
+
+            {customer && !isAdmin && (
+              <div className="bg-white rounded-xl border border-gray-100 p-4 mb-5">
+                <p className="text-sm text-gray-500">Signed in as</p>
+                <p className="font-bold text-gray-900">{customer.full_name}</p>
+              </div>
+            )}
 
             <div className="flex flex-col gap-4 text-gray-700 font-medium">
               <Link to="/" onClick={closeMenu}>
@@ -213,7 +246,7 @@ function Navbar({ onSearch }) {
               )}
 
               <Link to="/cart" onClick={closeMenu}>
-                Cart ({cartItems.length})
+                Cart ({cartCount})
               </Link>
 
               {!isAdmin && customer && (
