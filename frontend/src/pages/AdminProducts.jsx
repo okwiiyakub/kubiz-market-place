@@ -1,12 +1,16 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import api from "../api/api";
 import { Link } from "react-router-dom";
 import getCsrfToken from "../utils/getCsrfToken";
 import AdminLayout from "../layouts/AdminLayout";
 
 function AdminProducts() {
+  const PRODUCTS_PER_PAGE = 8;
+
   const [products, setProducts] = useState([]);
   const [error, setError] = useState("");
+  const [sortOption, setSortOption] = useState("newest");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [filters, setFilters] = useState({
     search: "",
@@ -27,7 +31,10 @@ function AdminProducts() {
   }, []);
 
   const handleDelete = async (id) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this product?");
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this product?"
+    );
+
     if (!confirmDelete) return;
 
     try {
@@ -66,8 +73,7 @@ function AdminProducts() {
       filters.category === "all" || product.category_name === filters.category;
 
     const matchesActive =
-      filters.active === "all" ||
-      String(product.is_active) === filters.active;
+      filters.active === "all" || String(product.is_active) === filters.active;
 
     const matchesFeatured =
       filters.featured === "all" ||
@@ -90,6 +96,43 @@ function AdminProducts() {
     );
   });
 
+  const sortedProducts = useMemo(() => {
+    const productCopy = [...filteredProducts];
+
+    if (sortOption === "price-low") {
+      return productCopy.sort((a, b) => Number(a.price) - Number(b.price));
+    }
+
+    if (sortOption === "price-high") {
+      return productCopy.sort((a, b) => Number(b.price) - Number(a.price));
+    }
+
+    if (sortOption === "stock-low") {
+      return productCopy.sort(
+        (a, b) => Number(a.stock_quantity) - Number(b.stock_quantity)
+      );
+    }
+
+    if (sortOption === "stock-high") {
+      return productCopy.sort(
+        (a, b) => Number(b.stock_quantity) - Number(a.stock_quantity)
+      );
+    }
+
+    if (sortOption === "name-az") {
+      return productCopy.sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    return productCopy.sort((a, b) => b.id - a.id);
+  }, [filteredProducts, sortOption]);
+
+  const totalPages = Math.ceil(sortedProducts.length / PRODUCTS_PER_PAGE);
+
+  const paginatedProducts = sortedProducts.slice(
+    (currentPage - 1) * PRODUCTS_PER_PAGE,
+    currentPage * PRODUCTS_PER_PAGE
+  );
+
   const clearFilters = () => {
     setFilters({
       search: "",
@@ -98,6 +141,21 @@ function AdminProducts() {
       featured: "all",
       stock: "all",
     });
+    setSortOption("newest");
+    setCurrentPage(1);
+  };
+
+  const handleFilterChange = (field, value) => {
+    setFilters({
+      ...filters,
+      [field]: value,
+    });
+    setCurrentPage(1);
+  };
+
+  const handleSortChange = (e) => {
+    setSortOption(e.target.value);
+    setCurrentPage(1);
   };
 
   const getStockBadge = (quantity) => {
@@ -136,7 +194,7 @@ function AdminProducts() {
               Product Manager
             </h1>
             <p className="text-gray-500 mt-2">
-              Search, filter, add, edit, and manage marketplace products.
+              Search, filter, sort, add, edit, and manage marketplace products.
             </p>
           </div>
 
@@ -187,17 +245,13 @@ function AdminProducts() {
               type="text"
               placeholder="Search by product name..."
               value={filters.search}
-              onChange={(e) =>
-                setFilters({ ...filters, search: e.target.value })
-              }
+              onChange={(e) => handleFilterChange("search", e.target.value)}
               className="md:col-span-2 border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
 
             <select
               value={filters.category}
-              onChange={(e) =>
-                setFilters({ ...filters, category: e.target.value })
-              }
+              onChange={(e) => handleFilterChange("category", e.target.value)}
               className="border border-gray-300 rounded-xl px-4 py-3"
             >
               <option value="all">All Categories</option>
@@ -210,9 +264,7 @@ function AdminProducts() {
 
             <select
               value={filters.active}
-              onChange={(e) =>
-                setFilters({ ...filters, active: e.target.value })
-              }
+              onChange={(e) => handleFilterChange("active", e.target.value)}
               className="border border-gray-300 rounded-xl px-4 py-3"
             >
               <option value="all">All Status</option>
@@ -222,9 +274,7 @@ function AdminProducts() {
 
             <select
               value={filters.featured}
-              onChange={(e) =>
-                setFilters({ ...filters, featured: e.target.value })
-              }
+              onChange={(e) => handleFilterChange("featured", e.target.value)}
               className="border border-gray-300 rounded-xl px-4 py-3"
             >
               <option value="all">All Featured</option>
@@ -234,9 +284,7 @@ function AdminProducts() {
 
             <select
               value={filters.stock}
-              onChange={(e) =>
-                setFilters({ ...filters, stock: e.target.value })
-              }
+              onChange={(e) => handleFilterChange("stock", e.target.value)}
               className="border border-gray-300 rounded-xl px-4 py-3"
             >
               <option value="all">All Stock</option>
@@ -246,25 +294,36 @@ function AdminProducts() {
             </select>
           </div>
 
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mt-5">
-            <p className="text-gray-500">
-              Showing{" "}
-              <span className="font-bold text-gray-900">
-                {filteredProducts.length}
-              </span>{" "}
-              of{" "}
-              <span className="font-bold text-gray-900">
-                {products.length}
-              </span>{" "}
-              products
-            </p>
-
-            <button
-              onClick={clearFilters}
-              className="bg-gray-100 text-gray-700 px-5 py-2.5 rounded-xl font-semibold hover:bg-gray-200 transition"
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-5">
+            <select
+              value={sortOption}
+              onChange={handleSortChange}
+              className="border border-gray-300 rounded-xl px-4 py-3"
             >
-              Clear Filters
-            </button>
+              <option value="newest">Sort: Newest First</option>
+              <option value="price-low">Sort: Price Low to High</option>
+              <option value="price-high">Sort: Price High to Low</option>
+              <option value="stock-low">Sort: Stock Low to High</option>
+              <option value="stock-high">Sort: Stock High to Low</option>
+              <option value="name-az">Sort: Name A to Z</option>
+            </select>
+
+            <div className="md:col-span-2 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <p className="text-gray-500">
+                Showing{" "}
+                <span className="font-bold text-gray-900">
+                  {sortedProducts.length}
+                </span>{" "}
+                product(s)
+              </p>
+
+              <button
+                onClick={clearFilters}
+                className="bg-gray-100 text-gray-700 px-5 py-3 rounded-xl font-semibold hover:bg-gray-200 transition"
+              >
+                Clear Filters
+              </button>
+            </div>
           </div>
         </section>
 
@@ -285,28 +344,36 @@ function AdminProducts() {
             </thead>
 
             <tbody>
-              {filteredProducts.map((product) => (
+              {paginatedProducts.map((product) => (
                 <tr key={product.id} className="border-b border-gray-100">
                   <td className="py-4 pr-4">{product.id}</td>
+
                   <td className="py-4 pr-4 font-semibold text-gray-900">
                     {product.name}
                   </td>
+
                   <td className="py-4 pr-4">{product.category_name}</td>
+
                   <td className="py-4 pr-4 text-green-600 font-semibold">
                     UGX {Number(product.price).toLocaleString()}
                   </td>
+
                   <td className="py-4 pr-4 font-semibold">
                     {product.stock_quantity}
                   </td>
+
                   <td className="py-4 pr-4">
                     {getStockBadge(product.stock_quantity)}
                   </td>
+
                   <td className="py-4 pr-4">
                     {product.is_active ? "Yes" : "No"}
                   </td>
+
                   <td className="py-4 pr-4">
                     {product.is_featured ? "Yes" : "No"}
                   </td>
+
                   <td className="py-4 pr-4">
                     <div className="flex gap-3">
                       <Link
@@ -329,12 +396,51 @@ function AdminProducts() {
             </tbody>
           </table>
 
-          {filteredProducts.length === 0 && (
-            <p className="text-gray-600 py-6">
-              No products match the selected filters.
-            </p>
+          {sortedProducts.length === 0 && (
+            <div className="text-center py-10">
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                No products found
+              </h3>
+              <p className="text-gray-600 mb-5">
+                No products match your current filters.
+              </p>
+              <button
+                onClick={clearFilters}
+                className="bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-700 transition"
+              >
+                View All Products
+              </button>
+            </div>
           )}
         </div>
+
+        {totalPages > 1 && (
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
+            <p className="text-gray-600">
+              Page{" "}
+              <span className="font-bold text-gray-900">{currentPage}</span>{" "}
+              of <span className="font-bold text-gray-900">{totalPages}</span>
+            </p>
+
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setCurrentPage((page) => page - 1)}
+                disabled={currentPage === 1}
+                className="px-5 py-2.5 rounded-xl border border-gray-300 text-gray-700 font-semibold hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Previous
+              </button>
+
+              <button
+                onClick={() => setCurrentPage((page) => page + 1)}
+                disabled={currentPage === totalPages}
+                className="px-5 py-2.5 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </AdminLayout>
   );
