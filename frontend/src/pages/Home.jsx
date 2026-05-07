@@ -9,7 +9,7 @@ import Footer from "../components/Footer";
 import FloatingWhatsAppButton from "../components/FloatingWhatsAppButton";
 
 function Home() {
-  const PRODUCTS_PER_PAGE = 6;
+  const PRODUCTS_PER_PAGE = 12;
 
   const [message, setMessage] = useState("Loading...");
   const [categories, setCategories] = useState([]);
@@ -100,14 +100,17 @@ function Home() {
 
   const featuredProducts = products
     .filter((product) => product.is_featured)
-    .slice(0, 3);
+    .slice(0, 4);
 
-  const latestProducts = products.slice(0, 6);
+  const latestProducts = products.slice(0, 8);
 
   const handleSortChange = (e) => {
     setSortOption(e.target.value);
     setCurrentPage(1);
   };
+
+  const productGridClass =
+    "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5";
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -115,46 +118,46 @@ function Home() {
       <Hero />
       <PopularBrands />
 
-      <main className="max-w-7xl mx-auto px-6 py-14">
-        <div className="mb-10">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+        <div className="mb-8">
           <p className="text-gray-500 text-lg">{message}</p>
           {error && <p className="text-red-600 mt-2">{error}</p>}
         </div>
 
         {!isFiltering && (
           <>
-            <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-              <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-                <h3 className="text-xl font-bold text-gray-900 mb-2">
+            <section className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-14">
+              <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
+                <h3 className="text-lg font-bold text-gray-900 mb-2">
                   Secure Shopping
                 </h3>
-                <p className="text-gray-600">
+                <p className="text-gray-600 text-sm">
                   Place orders safely and track them from your customer account.
                 </p>
               </div>
 
-              <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-                <h3 className="text-xl font-bold text-gray-900 mb-2">
+              <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
+                <h3 className="text-lg font-bold text-gray-900 mb-2">
                   Quality Products
                 </h3>
-                <p className="text-gray-600">
+                <p className="text-gray-600 text-sm">
                   Discover computers, phones, accessories, services, and digital products.
                 </p>
               </div>
 
-              <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-                <h3 className="text-xl font-bold text-gray-900 mb-2">
+              <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
+                <h3 className="text-lg font-bold text-gray-900 mb-2">
                   Quick Support
                 </h3>
-                <p className="text-gray-600">
+                <p className="text-gray-600 text-sm">
                   Contact Kubiz Market Place directly through WhatsApp for help.
                 </p>
               </div>
             </section>
 
             {featuredProducts.length > 0 && (
-              <section className="mb-16">
-                <div className="mb-8">
+              <section className="mb-14">
+                <div className="mb-6">
                   <p className="text-blue-600 font-semibold uppercase tracking-wide text-sm">
                     Recommended for you
                   </p>
@@ -163,7 +166,7 @@ function Home() {
                   </h2>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+                <div className={productGridClass}>
                   {featuredProducts.map((product) => (
                     <ProductCard key={product.id} product={product} />
                   ))}
@@ -171,8 +174,8 @@ function Home() {
               </section>
             )}
 
-            <section id="categories" className="mb-16">
-              <div className="mb-8">
+            <section id="categories" className="mb-14">
+              <div className="mb-6">
                 <p className="text-blue-600 font-semibold uppercase tracking-wide text-sm">
                   Browse with ease
                 </p>
@@ -181,7 +184,7 @@ function Home() {
                 </h2>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                 {categories.map((category) => (
                   <CategoryCard
                     key={category.id}
@@ -193,8 +196,8 @@ function Home() {
             </section>
 
             {recentlyViewed.length > 0 && (
-              <section className="mb-16">
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+              <section className="mb-14">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
                   <div>
                     <p className="text-blue-600 font-semibold uppercase tracking-wide text-sm">
                       Continue browsing
@@ -212,7 +215,7 @@ function Home() {
                   </button>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div className={productGridClass}>
                   {recentlyViewed.map((product) => (
                     <ProductCard key={product.id} product={product} />
                   ))}
@@ -221,8 +224,8 @@ function Home() {
             )}
 
             {latestProducts.length > 0 && (
-              <section className="mb-16">
-                <div className="mb-8">
+              <section className="mb-14">
+                <div className="mb-6">
                   <p className="text-blue-600 font-semibold uppercase tracking-wide text-sm">
                     New arrivals
                   </p>
@@ -231,7 +234,7 @@ function Home() {
                   </h2>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className={productGridClass}>
                   {latestProducts.map((product) => (
                     <ProductCard key={product.id} product={product} />
                   ))}
@@ -242,7 +245,7 @@ function Home() {
         )}
 
         <section id="products">
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-8">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 mb-6">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
               <div>
                 <p className="text-blue-600 font-semibold uppercase tracking-wide text-sm">
@@ -321,14 +324,14 @@ function Home() {
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className={productGridClass}>
                 {paginatedProducts.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
               </div>
 
               {totalPages > 1 && (
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-10 bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
                   <p className="text-gray-600">
                     Page{" "}
                     <span className="font-bold text-gray-900">
