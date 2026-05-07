@@ -57,7 +57,7 @@ function ProductDetail() {
               item.category_name === product.category_name &&
               item.slug !== product.slug
           )
-          .slice(0, 3);
+          .slice(0, 4);
 
         setRelatedProducts(related);
       })
@@ -109,7 +109,7 @@ function ProductDetail() {
       <div className="min-h-screen bg-gray-50">
         <Navbar />
         <main className="max-w-7xl mx-auto px-6 py-16">
-          <p className="text-lg text-gray-600">Loading product details...</p>
+          <p className="text-gray-600">Loading product details...</p>
         </main>
         <Footer />
       </div>
@@ -145,7 +145,9 @@ function ProductDetail() {
 
   const whatsappNumber = "2567XXXXXXXX";
 
-  const whatsappMessage = `Hello, I am interested in ${product.name} on Kubiz Market Place. Price: UGX ${Number(product.price).toLocaleString()}. Please share more details.`;
+  const whatsappMessage = `Hello, I am interested in ${product.name} on Kubiz Market Place. Price: UGX ${Number(
+    product.price
+  ).toLocaleString()}. Please share more details.`;
 
   const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
     whatsappMessage
@@ -155,93 +157,109 @@ function ProductDetail() {
     <div className="min-h-screen bg-gray-50">
       <Navbar />
 
-      <main className="max-w-7xl mx-auto px-6 py-10">
-        <div className="mb-6 text-sm text-gray-500">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+        <div className="mb-5 text-sm text-gray-500">
           <Link to="/" className="hover:text-blue-600">
             Home
           </Link>{" "}
           / <span className="text-gray-800 font-medium">{product.name}</span>
         </div>
 
-        <section className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden grid grid-cols-1 lg:grid-cols-2 gap-10 p-6 lg:p-10">
+        <section className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden grid grid-cols-1 lg:grid-cols-2 gap-6 p-5 lg:p-7">
           <div>
-            <div className="bg-gray-100 rounded-3xl overflow-hidden border border-gray-100">
+            <div className="bg-gray-100 rounded-2xl overflow-hidden border border-gray-100">
               {imageUrl ? (
                 <img
                   src={imageUrl}
                   alt={product.name}
-                  className="w-full h-[460px] object-cover"
+                  className="w-full h-[320px] lg:h-[420px] object-cover"
                 />
               ) : (
-                <div className="w-full h-[460px] flex items-center justify-center text-gray-500">
+                <div className="w-full h-[320px] lg:h-[420px] flex items-center justify-center text-gray-500">
                   No Image Available
                 </div>
               )}
             </div>
-
-            <div className="grid grid-cols-3 gap-3 mt-4">
-              <div className="h-24 rounded-2xl bg-gray-100 border border-blue-500 overflow-hidden">
-                {imageUrl && (
-                  <img
-                    src={imageUrl}
-                    alt={product.name}
-                    className="w-full h-full object-cover"
-                  />
-                )}
-              </div>
-            </div>
           </div>
 
           <div className="flex flex-col justify-center">
-            <div className="flex flex-wrap items-center gap-3 mb-4">
-              <span className="bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-semibold">
+            <div className="flex flex-wrap items-center gap-2 mb-4">
+              <span className="bg-blue-100 text-blue-700 px-3 py-1.5 rounded-full text-xs font-bold">
                 {product.category_name}
               </span>
 
               {product.is_featured && (
-                <span className="bg-yellow-100 text-yellow-700 px-4 py-2 rounded-full text-sm font-semibold">
+                <span className="bg-yellow-100 text-yellow-700 px-3 py-1.5 rounded-full text-xs font-bold">
                   Featured
                 </span>
               )}
 
               <span
-                className={`px-4 py-2 rounded-full text-sm font-semibold ${
+                className={`px-3 py-1.5 rounded-full text-xs font-bold ${
                   isOutOfStock
                     ? "bg-red-100 text-red-700"
+                    : isLowStock
+                    ? "bg-yellow-100 text-yellow-700"
                     : "bg-green-100 text-green-700"
                 }`}
               >
-                {isOutOfStock ? "Out of Stock" : "In Stock"}
+                {isOutOfStock
+                  ? "Out of Stock"
+                  : isLowStock
+                  ? "Low Stock"
+                  : "In Stock"}
               </span>
-
-              {isLowStock && (
-                <span className="bg-yellow-100 text-yellow-700 px-4 py-2 rounded-full text-sm font-semibold">
-                  Low Stock
-                </span>
-              )}
             </div>
 
-            <h1 className="text-4xl lg:text-5xl font-extrabold text-gray-900 mb-4 leading-tight">
+            <h1 className="text-3xl lg:text-4xl font-extrabold text-gray-900 mb-3 leading-tight">
               {product.name}
             </h1>
 
-            <p className="text-4xl font-extrabold text-green-600 mb-6">
+            <p className="text-3xl font-extrabold text-green-600 mb-5">
               UGX {Number(product.price).toLocaleString()}
             </p>
 
-            <p className="text-gray-700 leading-8 mb-8 text-lg">
+            <p className="text-gray-700 leading-7 mb-6">
               {product.description || "No description available for this product."}
             </p>
 
-            <div className="bg-gray-50 border border-gray-100 rounded-2xl p-5 mb-6">
-              <p className="text-sm text-gray-500 mb-2">Available Stock</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {product.stock_quantity} item(s)
-              </p>
+            <div className="bg-gray-50 border border-gray-100 rounded-2xl p-4 mb-5">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">Available Stock</p>
+                  <p className="text-xl font-bold text-gray-900">
+                    {product.stock_quantity} item(s)
+                  </p>
+                </div>
+
+                {!isOutOfStock && (
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={decreaseQuantity}
+                      disabled={quantity <= 1}
+                      className="w-10 h-10 rounded-lg border border-gray-300 text-lg font-bold hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      -
+                    </button>
+
+                    <span className="text-xl font-bold min-w-8 text-center">
+                      {quantity}
+                    </span>
+
+                    <button
+                      onClick={increaseQuantity}
+                      disabled={reachedStockLimit}
+                      className="w-10 h-10 rounded-lg border border-gray-300 text-lg font-bold hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      +
+                    </button>
+                  </div>
+                )}
+              </div>
 
               {isLowStock && (
                 <p className="bg-yellow-50 text-yellow-700 px-4 py-2 rounded-xl text-sm mt-4">
-                  Hurry up. Only {product.stock_quantity} item(s) left in stock.
+                  Hurry, only {product.stock_quantity} item(s) left.
                 </p>
               )}
 
@@ -250,47 +268,17 @@ function ProductDetail() {
                   This product is currently unavailable.
                 </p>
               )}
-            </div>
 
-            {!isOutOfStock && (
-              <div className="mb-6">
-                <p className="font-semibold text-gray-800 mb-3">
-                  Select Quantity
+              {reachedStockLimit && !isOutOfStock && (
+                <p className="bg-yellow-50 text-yellow-700 px-4 py-2 rounded-xl text-sm mt-4">
+                  You have reached the available stock limit.
                 </p>
-
-                <div className="flex items-center gap-4">
-                  <button
-                    onClick={decreaseQuantity}
-                    disabled={quantity <= 1}
-                    className="w-12 h-12 rounded-xl border border-gray-300 text-xl font-bold hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    -
-                  </button>
-
-                  <span className="text-2xl font-bold min-w-10 text-center">
-                    {quantity}
-                  </span>
-
-                  <button
-                    onClick={increaseQuantity}
-                    disabled={reachedStockLimit}
-                    className="w-12 h-12 rounded-xl border border-gray-300 text-xl font-bold hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    +
-                  </button>
-                </div>
-
-                {reachedStockLimit && (
-                  <p className="bg-yellow-50 text-yellow-700 px-4 py-2 rounded-xl text-sm mt-4">
-                    You have reached the available stock limit for this product.
-                  </p>
-                )}
-              </div>
-            )}
+              )}
+            </div>
 
             {addedMessage && (
               <p
-                className={`px-4 py-3 rounded-xl mb-5 ${
+                className={`px-4 py-3 rounded-xl mb-5 text-sm font-semibold ${
                   addedMessage.includes("added")
                     ? "bg-green-100 text-green-700"
                     : "bg-red-100 text-red-700"
@@ -300,11 +288,11 @@ function ProductDetail() {
               </p>
             )}
 
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-3">
               <button
                 onClick={handleAddToCart}
                 disabled={isOutOfStock || quantity > product.stock_quantity}
-                className="flex-1 bg-blue-600 text-white px-6 py-4 rounded-xl font-bold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isOutOfStock ? "Out of Stock" : "Add to Cart"}
               </button>
@@ -313,49 +301,43 @@ function ProductDetail() {
                 href={whatsappLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 text-center border border-green-600 text-green-600 px-6 py-4 rounded-xl font-bold hover:bg-green-50 transition"
+                className="flex-1 text-center border border-green-600 text-green-600 px-6 py-3 rounded-xl font-bold hover:bg-green-50 transition"
               >
                 Chat on WhatsApp
               </a>
             </div>
 
-            <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100">
-                <p className="font-bold text-gray-900">Trusted Seller</p>
-                <p className="text-sm text-gray-500 mt-1">
-                  Verified marketplace listing
-                </p>
+            <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="bg-gray-50 rounded-xl p-4 text-center">
+                <p className="font-bold text-gray-900">Secure</p>
+                <p className="text-xs text-gray-500">Safe ordering</p>
               </div>
 
-              <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100">
-                <p className="font-bold text-gray-900">Fast Inquiry</p>
-                <p className="text-sm text-gray-500 mt-1">
-                  Contact seller instantly
-                </p>
+              <div className="bg-gray-50 rounded-xl p-4 text-center">
+                <p className="font-bold text-gray-900">Support</p>
+                <p className="text-xs text-gray-500">WhatsApp help</p>
               </div>
 
-              <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100">
-                <p className="font-bold text-gray-900">Order Tracking</p>
-                <p className="text-sm text-gray-500 mt-1">
-                  Track after checkout
-                </p>
+              <div className="bg-gray-50 rounded-xl p-4 text-center">
+                <p className="font-bold text-gray-900">Tracking</p>
+                <p className="text-xs text-gray-500">Order updates</p>
               </div>
             </div>
           </div>
         </section>
 
         {relatedProducts.length > 0 && (
-          <section className="mt-16">
-            <div className="mb-8">
+          <section className="mt-12">
+            <div className="mb-6">
               <p className="text-blue-600 font-semibold uppercase tracking-wide text-sm">
-                Similar products
+                You may also like
               </p>
               <h2 className="text-3xl font-extrabold text-gray-900">
-                You May Also Like
+                Related Products
               </h2>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
               {relatedProducts.map((item) => (
                 <ProductCard key={item.id} product={item} />
               ))}
