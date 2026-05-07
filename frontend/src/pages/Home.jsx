@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import api from "../api/api";
 import Navbar from "../components/Navbar";
 import Hero from "../components/Hero";
+import PopularBrands from "../components/PopularBrands";
 import CategoryCard from "../components/CategoryCard";
 import ProductCard from "../components/ProductCard";
 import Footer from "../components/Footer";
@@ -112,6 +113,7 @@ function Home() {
     <div className="bg-gray-50 min-h-screen">
       <Navbar onSearch={setSearchTerm} />
       <Hero />
+      <PopularBrands />
 
       <main className="max-w-7xl mx-auto px-6 py-14">
         <div className="mb-10">
