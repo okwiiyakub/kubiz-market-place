@@ -22,6 +22,7 @@ function Account() {
   const [error, setError] = useState("");
   const [profileLoading, setProfileLoading] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
+  const [showPasswords, setShowPasswords] = useState(false);
 
   useEffect(() => {
     api.get("accounts/me/")
@@ -53,9 +54,15 @@ function Account() {
   const handleProfileUpdate = async (e) => {
     e.preventDefault();
 
-    setProfileLoading(true);
     setProfileMessage("");
     setError("");
+
+    if (!profileData.full_name.trim()) {
+      setError("Full name is required.");
+      return;
+    }
+
+    setProfileLoading(true);
 
     try {
       await api.get("csrf/");
@@ -83,6 +90,15 @@ function Account() {
     setPasswordMessage("");
     setError("");
 
+    if (
+      !passwordData.current_password ||
+      !passwordData.new_password ||
+      !passwordData.confirm_password
+    ) {
+      setError("Please fill in all password fields.");
+      return;
+    }
+
     if (passwordData.new_password !== passwordData.confirm_password) {
       setError("New password and confirm password do not match.");
       return;
@@ -90,6 +106,11 @@ function Account() {
 
     if (passwordData.new_password.length < 6) {
       setError("New password must be at least 6 characters long.");
+      return;
+    }
+
+    if (passwordData.current_password === passwordData.new_password) {
+      setError("New password must be different from your current password.");
       return;
     }
 
@@ -127,15 +148,35 @@ function Account() {
     }
   };
 
+  const passwordStrength = () => {
+    const password = passwordData.new_password;
+
+    if (!password) return "Not started";
+    if (password.length < 6) return "Weak";
+    if (password.length < 10) return "Good";
+    return "Strong";
+  };
+
+  const getStrengthStyle = () => {
+    const strength = passwordStrength();
+
+    if (strength === "Weak") return "text-red-600 bg-red-50";
+    if (strength === "Good") return "text-yellow-700 bg-yellow-50";
+    if (strength === "Strong") return "text-green-700 bg-green-50";
+    return "text-gray-600 bg-gray-50";
+  };
+
   if (!customer) {
     return (
       <div className="min-h-screen bg-gray-50">
         <Navbar />
+
         <main className="max-w-4xl mx-auto px-6 py-16">
           <div className="bg-white rounded-2xl border border-gray-100 p-8">
             <p className="text-red-600">{error || "Loading account..."}</p>
           </div>
         </main>
+
         <Footer />
       </div>
     );
@@ -145,16 +186,18 @@ function Account() {
     <div className="min-h-screen bg-gray-50">
       <Navbar />
 
-      <main className="max-w-5xl mx-auto px-6 py-16">
+      <main className="max-w-6xl mx-auto px-6 py-16">
         <div className="mb-10">
           <p className="text-blue-600 font-semibold uppercase tracking-wide text-sm">
             Customer Account
           </p>
+
           <h1 className="text-4xl font-extrabold text-gray-900">
             My Account
           </h1>
+
           <p className="text-gray-500 mt-2">
-            Manage your Kubiz Market Place profile and account security.
+            Manage your profile, contact details, and account security.
           </p>
         </div>
 
@@ -164,6 +207,29 @@ function Account() {
           </p>
         )}
 
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <p className="text-gray-500 text-sm mb-2">Account Name</p>
+            <h2 className="text-xl font-bold text-gray-900">
+              {customer.full_name || "Customer"}
+            </h2>
+          </div>
+
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <p className="text-gray-500 text-sm mb-2">Registered Email</p>
+            <h2 className="text-xl font-bold text-gray-900 break-all">
+              {customer.email}
+            </h2>
+          </div>
+
+          <div className="bg-green-50 rounded-2xl shadow-sm border border-green-100 p-6">
+            <p className="text-green-700 text-sm mb-2">Account Status</p>
+            <h2 className="text-xl font-bold text-green-700">
+              Active Customer
+            </h2>
+          </div>
+        </section>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
@@ -171,7 +237,7 @@ function Account() {
             </h2>
 
             <p className="text-gray-500 mb-6">
-              Update your name and view your registered email address.
+              Update your customer name used during shopping and order tracking.
             </p>
 
             {profileMessage && (
@@ -206,6 +272,10 @@ function Account() {
                   disabled
                   className="w-full border border-gray-200 bg-gray-100 rounded-xl px-4 py-3 text-gray-500"
                 />
+
+                <p className="text-sm text-gray-500 mt-2">
+                  Email changes are disabled for account safety.
+                </p>
               </div>
 
               <button
@@ -224,7 +294,7 @@ function Account() {
             </h2>
 
             <p className="text-gray-500 mb-6">
-              Use this section to update your login password.
+              Keep your account protected by using a strong and private password.
             </p>
 
             {passwordMessage && (
@@ -233,6 +303,20 @@ function Account() {
               </p>
             )}
 
+            <div className="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-3 mb-5">
+              <span className="text-sm text-gray-600">
+                Password visibility
+              </span>
+
+              <button
+                type="button"
+                onClick={() => setShowPasswords(!showPasswords)}
+                className="text-blue-600 font-semibold"
+              >
+                {showPasswords ? "Hide Passwords" : "Show Passwords"}
+              </button>
+            </div>
+
             <form onSubmit={handleChangePassword}>
               <div className="mb-5">
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -240,7 +324,7 @@ function Account() {
                 </label>
 
                 <input
-                  type="password"
+                  type={showPasswords ? "text" : "password"}
                   name="current_password"
                   value={passwordData.current_password}
                   onChange={handlePasswordChange}
@@ -255,13 +339,19 @@ function Account() {
                 </label>
 
                 <input
-                  type="password"
+                  type={showPasswords ? "text" : "password"}
                   name="new_password"
                   value={passwordData.new_password}
                   onChange={handlePasswordChange}
                   className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Enter new password"
                 />
+
+                <p
+                  className={`inline-block mt-3 px-4 py-2 rounded-xl text-sm font-semibold ${getStrengthStyle()}`}
+                >
+                  Password Strength: {passwordStrength()}
+                </p>
               </div>
 
               <div className="mb-8">
@@ -270,7 +360,7 @@ function Account() {
                 </label>
 
                 <input
-                  type="password"
+                  type={showPasswords ? "text" : "password"}
                   name="confirm_password"
                   value={passwordData.confirm_password}
                   onChange={handlePasswordChange}
