@@ -5,6 +5,7 @@ import Cart from "../pages/Cart";
 import Checkout from "../pages/Checkout";
 import OrderSuccess from "../pages/OrderSuccess";
 import Dashboard from "../pages/Dashboard";
+import AdminLogin from "../pages/AdminLogin";
 import AdminProducts from "../pages/AdminProducts";
 import AdminProductForm from "../pages/AdminProductForm";
 import AdminOrders from "../pages/AdminOrders";
@@ -21,7 +22,6 @@ function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Customer/public routes */}
         <Route path="/" element={<Home />} />
         <Route path="/products/:slug" element={<ProductDetail />} />
         <Route path="/cart" element={<Cart />} />
@@ -33,7 +33,8 @@ function AppRoutes() {
         <Route path="/account" element={<Account />} />
         <Route path="/my-orders/:id" element={<OrderDetail />} />
 
-        {/* Admin protected routes */}
+        <Route path="/admin-login" element={<AdminLogin />} />
+
         <Route
           path="/dashboard"
           element={
@@ -80,6 +81,15 @@ function AppRoutes() {
         />
 
         <Route
+          path="/admin-orders/:id"
+          element={
+            <ProtectedAdminRoute>
+              <AdminOrderDetail />
+            </ProtectedAdminRoute>
+          }
+        />
+
+        <Route
           path="/admin-reports"
           element={
             <ProtectedAdminRoute>
@@ -87,16 +97,6 @@ function AppRoutes() {
             </ProtectedAdminRoute>
           }
         />
-
-        <Route
-          path="/admin-orders/:id"
-          element={
-            <ProtectedAdminRoute>
-              <AdminOrderDetail />
-            </ProtectedAdminRoute>
-          }
-        />        
-
       </Routes>
     </BrowserRouter>
   );
