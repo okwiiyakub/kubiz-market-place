@@ -31,7 +31,8 @@ function Dashboard() {
         setSummary(response.data);
       })
       .catch(() => {
-        navigate("/");
+        setError("Failed to load dashboard summary. Please make sure the Django backend is running.");
+        setSummary(null);
       });
 
     api.get("products/admin/manage/")
