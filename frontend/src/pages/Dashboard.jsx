@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../api/api";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import AdminLayout from "../layouts/AdminLayout";
 
 import {
@@ -20,10 +20,10 @@ import {
 } from "recharts";
 
 function Dashboard() {
-  const navigate = useNavigate();
   const [summary, setSummary] = useState(null);
   const [adminProducts, setAdminProducts] = useState([]);
   const [error, setError] = useState("");
+  const [stockAlertError, setStockAlertError] = useState("");
 
   useEffect(() => {
     api.get("dashboard/summary/")
@@ -31,8 +31,9 @@ function Dashboard() {
         setSummary(response.data);
       })
       .catch(() => {
-        setError("Failed to load dashboard summary. Please make sure the Django backend is running.");
-        setSummary(null);
+        setError(
+          "Failed to load dashboard summary. Please make sure the Django backend is running."
+        );
       });
 
     api.get("products/admin/manage/")
@@ -40,11 +41,24 @@ function Dashboard() {
         setAdminProducts(response.data);
       })
       .catch(() => {
-        setError("Failed to load product stock alerts.");
+        setAdminProducts([]);
+        setStockAlertError(
+          "Stock alerts could not be loaded, but the dashboard is still available."
+        );
       });
-  }, [navigate]);
+  }, []);
 
-  if (error && !summary) {
+  if (!summary && !error) {
+    return (
+      <AdminLayout>
+        <div className="max-w-7xl mx-auto">
+          <p className="text-gray-600 text-lg">Loading dashboard...</p>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  if (!summary && error) {
     return (
       <AdminLayout>
         <div className="max-w-7xl mx-auto">
@@ -54,15 +68,9 @@ function Dashboard() {
     );
   }
 
-  if (!summary) {
-    return (
-      <AdminLayout>
-        <div className="max-w-7xl mx-auto">
-          <p className="text-gray-600 text-lg">Loading dashboard...</p>
-        </div>
-      </AdminLayout>
-    );
-  }
+  const productsByCategory = summary.products_by_category || [];
+  const monthlySales = summary.monthly_sales || [];
+  const recentOrders = summary.recent_orders || [];
 
   const lowStockProducts = adminProducts.filter(
     (product) => product.stock_quantity > 0 && product.stock_quantity <= 5
@@ -114,9 +122,9 @@ function Dashboard() {
           </p>
         </div>
 
-        {error && (
+        {stockAlertError && (
           <p className="bg-yellow-50 border border-yellow-100 text-yellow-700 px-4 py-3 rounded-xl mb-8">
-            {error}
+            {stockAlertError}
           </p>
         )}
 
@@ -168,42 +176,46 @@ function Dashboard() {
             </div>
 
             <div className="space-y-3">
-              {[...outOfStockProducts, ...lowStockProducts].slice(0, 8).map((product) => (
-                <div
-                  key={product.id}
-                  className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 border border-gray-100 rounded-xl p-4"
-                >
-                  <div>
-                    <p className="font-bold text-gray-900">{product.name}</p>
-                    <p className="text-sm text-gray-500">
-                      {product.category_name}
-                    </p>
+              {[...outOfStockProducts, ...lowStockProducts]
+                .slice(0, 8)
+                .map((product) => (
+                  <div
+                    key={product.id}
+                    className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 border border-gray-100 rounded-xl p-4"
+                  >
+                    <div>
+                      <p className="font-bold text-gray-900">{product.name}</p>
+                      <p className="text-sm text-gray-500">
+                        {product.category_name}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <span className="font-semibold text-gray-700">
+                        Stock: {product.stock_quantity}
+                      </span>
+
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-bold ${
+                          product.stock_quantity <= 0
+                            ? "bg-red-100 text-red-700"
+                            : "bg-yellow-100 text-yellow-700"
+                        }`}
+                      >
+                        {product.stock_quantity <= 0
+                          ? "Out of Stock"
+                          : "Low Stock"}
+                      </span>
+
+                      <Link
+                        to={`/admin-products/edit/${product.id}`}
+                        className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-semibold hover:bg-gray-200 transition"
+                      >
+                        Edit
+                      </Link>
+                    </div>
                   </div>
-
-                  <div className="flex items-center gap-3">
-                    <span className="font-semibold text-gray-700">
-                      Stock: {product.stock_quantity}
-                    </span>
-
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-bold ${
-                        product.stock_quantity <= 0
-                          ? "bg-red-100 text-red-700"
-                          : "bg-yellow-100 text-yellow-700"
-                      }`}
-                    >
-                      {product.stock_quantity <= 0 ? "Out of Stock" : "Low Stock"}
-                    </span>
-
-                    <Link
-                      to={`/admin-products/edit/${product.id}`}
-                      className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-semibold hover:bg-gray-200 transition"
-                    >
-                      Edit
-                    </Link>
-                  </div>
-                </div>
-              ))}
+                ))}
             </div>
           </section>
         )}
@@ -285,17 +297,21 @@ function Dashboard() {
           </h2>
 
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            {summary.products_by_category.map((category, index) => (
-              <div
-                key={index}
-                className="flex justify-between border-b border-gray-100 py-3"
-              >
-                <span>{category.name}</span>
-                <span className="font-semibold">
-                  {category.product_count}
-                </span>
-              </div>
-            ))}
+            {productsByCategory.length === 0 ? (
+              <p className="text-gray-500">No category data available.</p>
+            ) : (
+              productsByCategory.map((category, index) => (
+                <div
+                  key={index}
+                  className="flex justify-between border-b border-gray-100 py-3"
+                >
+                  <span>{category.name}</span>
+                  <span className="font-semibold">
+                    {category.product_count}
+                  </span>
+                </div>
+              ))
+            )}
           </div>
         </section>
 
@@ -305,16 +321,22 @@ function Dashboard() {
           </h2>
 
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 h-96">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={summary.products_by_category}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis allowDecimals={false} />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="product_count" name="Products" fill="#2563eb" />
-              </BarChart>
-            </ResponsiveContainer>
+            {productsByCategory.length === 0 ? (
+              <div className="h-full flex items-center justify-center text-gray-500">
+                No product category chart data available.
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={productsByCategory}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis allowDecimals={false} />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="product_count" name="Products" fill="#2563eb" />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </section>
 
@@ -336,18 +358,21 @@ function Dashboard() {
           </h2>
 
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 h-96">
-            {summary.monthly_sales.length === 0 ? (
+            {monthlySales.length === 0 ? (
               <div className="h-full flex items-center justify-center text-gray-500">
-                No delivered sales data yet. Mark some orders as delivered to see the trend.
+                No delivered sales data yet. Mark some orders as delivered to
+                see the trend.
               </div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={summary.monthly_sales}>
+                <LineChart data={monthlySales}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
                   <YAxis />
                   <Tooltip
-                    formatter={(value) => `UGX ${Number(value).toLocaleString()}`}
+                    formatter={(value) =>
+                      `UGX ${Number(value).toLocaleString()}`
+                    }
                   />
                   <Legend />
                   <Line
@@ -383,7 +408,7 @@ function Dashboard() {
               </Link>
             </div>
 
-            {summary.recent_orders.length === 0 ? (
+            {recentOrders.length === 0 ? (
               <p className="text-gray-600">No recent orders found.</p>
             ) : (
               <div className="overflow-x-auto">
@@ -401,7 +426,7 @@ function Dashboard() {
                   </thead>
 
                   <tbody>
-                    {summary.recent_orders.map((order) => (
+                    {recentOrders.map((order) => (
                       <tr key={order.id} className="border-b border-gray-100">
                         <td className="py-4">#{order.id}</td>
                         <td className="py-4">{order.full_name}</td>
@@ -410,9 +435,7 @@ function Dashboard() {
                         <td className="py-4 text-green-600 font-semibold">
                           UGX {Number(order.total_amount).toLocaleString()}
                         </td>
-                        <td className="py-4 capitalize">
-                          {order.status}
-                        </td>
+                        <td className="py-4 capitalize">{order.status}</td>
                         <td className="py-4">
                           <Link
                             to={`/admin-orders/${order.id}`}
