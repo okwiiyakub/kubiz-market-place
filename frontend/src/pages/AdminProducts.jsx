@@ -3,6 +3,22 @@ import api from "../api/api";
 import { Link } from "react-router-dom";
 import getCsrfToken from "../utils/getCsrfToken";
 import AdminLayout from "../layouts/AdminLayout";
+import {
+  AlertTriangle,
+  CheckCircle,
+  ChevronLeft,
+  ChevronRight,
+  Edit,
+  Filter,
+  Package,
+  PackageCheck,
+  PackageX,
+  Plus,
+  Search,
+  Star,
+  Trash2,
+  XCircle,
+} from "lucide-react";
 
 function AdminProducts() {
   const PRODUCTS_PER_PAGE = 8;
@@ -161,7 +177,8 @@ function AdminProducts() {
   const getStockBadge = (quantity) => {
     if (quantity <= 0) {
       return (
-        <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold">
+        <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1">
+          <PackageX size={13} />
           Out of Stock
         </span>
       );
@@ -169,14 +186,16 @@ function AdminProducts() {
 
     if (quantity <= 5) {
       return (
-        <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-bold">
+        <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1">
+          <AlertTriangle size={13} />
           Low Stock
         </span>
       );
     }
 
     return (
-      <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">
+      <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1">
+        <PackageCheck size={13} />
         Available
       </span>
     );
@@ -187,12 +206,15 @@ function AdminProducts() {
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10">
           <div>
-            <p className="text-blue-600 font-semibold uppercase tracking-wide text-sm">
+            <p className="text-blue-600 font-semibold uppercase tracking-wide text-sm flex items-center gap-2">
+              <Package size={16} />
               Admin Management
             </p>
+
             <h1 className="text-4xl font-extrabold text-gray-900">
               Product Manager
             </h1>
+
             <p className="text-gray-500 mt-2">
               Search, filter, sort, add, edit, and manage marketplace products.
             </p>
@@ -200,20 +222,25 @@ function AdminProducts() {
 
           <Link
             to="/admin-products/new"
-            className="bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-700 transition"
+            className="bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-700 transition inline-flex items-center gap-2"
           >
+            <Plus size={18} />
             Add Product
           </Link>
         </div>
 
         {error && (
-          <p className="bg-red-100 text-red-600 px-4 py-3 rounded-xl mb-6">
+          <p className="bg-red-100 text-red-600 px-4 py-3 rounded-xl mb-6 flex items-center gap-2">
+            <AlertTriangle size={18} />
             {error}
           </p>
         )}
 
         <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+            <div className="w-12 h-12 bg-blue-100 text-blue-700 rounded-xl flex items-center justify-center mb-4">
+              <Package size={24} />
+            </div>
             <p className="text-gray-500 text-sm mb-2">Total Products</p>
             <h2 className="text-3xl font-extrabold text-gray-900">
               {products.length}
@@ -221,6 +248,9 @@ function AdminProducts() {
           </div>
 
           <div className="bg-yellow-50 rounded-2xl border border-yellow-100 shadow-sm p-6">
+            <div className="w-12 h-12 bg-yellow-100 text-yellow-700 rounded-xl flex items-center justify-center mb-4">
+              <AlertTriangle size={24} />
+            </div>
             <p className="text-yellow-700 text-sm mb-2">Low Stock Products</p>
             <h2 className="text-3xl font-extrabold text-yellow-700">
               {lowStockProducts.length}
@@ -228,6 +258,9 @@ function AdminProducts() {
           </div>
 
           <div className="bg-red-50 rounded-2xl border border-red-100 shadow-sm p-6">
+            <div className="w-12 h-12 bg-red-100 text-red-700 rounded-xl flex items-center justify-center mb-4">
+              <PackageX size={24} />
+            </div>
             <p className="text-red-700 text-sm mb-2">Out of Stock Products</p>
             <h2 className="text-3xl font-extrabold text-red-700">
               {outOfStockProducts.length}
@@ -236,18 +269,26 @@ function AdminProducts() {
         </section>
 
         <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-5">
+          <h2 className="text-2xl font-bold text-gray-900 mb-5 flex items-center gap-2">
+            <Filter size={22} />
             Product Filters
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
-            <input
-              type="text"
-              placeholder="Search by product name..."
-              value={filters.search}
-              onChange={(e) => handleFilterChange("search", e.target.value)}
-              className="md:col-span-2 border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            <div className="md:col-span-2 relative">
+              <Search
+                size={18}
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+              />
+
+              <input
+                type="text"
+                placeholder="Search by product name..."
+                value={filters.search}
+                onChange={(e) => handleFilterChange("search", e.target.value)}
+                className="w-full border border-gray-300 rounded-xl pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
 
             <select
               value={filters.category}
@@ -319,8 +360,9 @@ function AdminProducts() {
 
               <button
                 onClick={clearFilters}
-                className="bg-gray-100 text-gray-700 px-5 py-3 rounded-xl font-semibold hover:bg-gray-200 transition"
+                className="bg-gray-100 text-gray-700 px-5 py-3 rounded-xl font-semibold hover:bg-gray-200 transition inline-flex items-center justify-center gap-2"
               >
+                <XCircle size={18} />
                 Clear Filters
               </button>
             </div>
@@ -367,26 +409,45 @@ function AdminProducts() {
                   </td>
 
                   <td className="py-4 pr-4">
-                    {product.is_active ? "Yes" : "No"}
+                    {product.is_active ? (
+                      <span className="text-green-700 font-semibold inline-flex items-center gap-1">
+                        <CheckCircle size={15} />
+                        Yes
+                      </span>
+                    ) : (
+                      <span className="text-red-700 font-semibold inline-flex items-center gap-1">
+                        <XCircle size={15} />
+                        No
+                      </span>
+                    )}
                   </td>
 
                   <td className="py-4 pr-4">
-                    {product.is_featured ? "Yes" : "No"}
+                    {product.is_featured ? (
+                      <span className="text-yellow-700 font-semibold inline-flex items-center gap-1">
+                        <Star size={15} />
+                        Yes
+                      </span>
+                    ) : (
+                      "No"
+                    )}
                   </td>
 
                   <td className="py-4 pr-4">
                     <div className="flex gap-3">
                       <Link
                         to={`/admin-products/edit/${product.id}`}
-                        className="bg-blue-100 text-blue-600 px-4 py-2 rounded-lg font-medium hover:bg-blue-200 transition"
+                        className="bg-blue-100 text-blue-600 px-4 py-2 rounded-lg font-medium hover:bg-blue-200 transition inline-flex items-center gap-2"
                       >
+                        <Edit size={15} />
                         Edit
                       </Link>
 
                       <button
                         onClick={() => handleDelete(product.id)}
-                        className="bg-red-100 text-red-600 px-4 py-2 rounded-lg font-medium hover:bg-red-200 transition"
+                        className="bg-red-100 text-red-600 px-4 py-2 rounded-lg font-medium hover:bg-red-200 transition inline-flex items-center gap-2"
                       >
+                        <Trash2 size={15} />
                         Delete
                       </button>
                     </div>
@@ -398,16 +459,21 @@ function AdminProducts() {
 
           {sortedProducts.length === 0 && (
             <div className="text-center py-10">
+              <PackageX size={42} className="mx-auto text-gray-400 mb-3" />
+
               <h3 className="text-2xl font-bold text-gray-900 mb-2">
                 No products found
               </h3>
+
               <p className="text-gray-600 mb-5">
                 No products match your current filters.
               </p>
+
               <button
                 onClick={clearFilters}
-                className="bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-700 transition"
+                className="bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-700 transition inline-flex items-center gap-2"
               >
+                <Package size={18} />
                 View All Products
               </button>
             </div>
@@ -426,17 +492,19 @@ function AdminProducts() {
               <button
                 onClick={() => setCurrentPage((page) => page - 1)}
                 disabled={currentPage === 1}
-                className="px-5 py-2.5 rounded-xl border border-gray-300 text-gray-700 font-semibold hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-5 py-2.5 rounded-xl border border-gray-300 text-gray-700 font-semibold hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2"
               >
+                <ChevronLeft size={18} />
                 Previous
               </button>
 
               <button
                 onClick={() => setCurrentPage((page) => page + 1)}
                 disabled={currentPage === totalPages}
-                className="px-5 py-2.5 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-5 py-2.5 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2"
               >
                 Next
+                <ChevronRight size={18} />
               </button>
             </div>
           </div>
