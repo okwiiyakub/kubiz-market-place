@@ -4,6 +4,25 @@ import { Link } from "react-router-dom";
 import AdminLayout from "../layouts/AdminLayout";
 
 import {
+  AlertTriangle,
+  BarChart3,
+  Boxes,
+  CheckCircle,
+  ClipboardList,
+  Clock,
+  Eye,
+  Package,
+  PackageCheck,
+  PackageX,
+  ShoppingBag,
+  Store,
+  TrendingUp,
+  Truck,
+  Wallet,
+  XCircle,
+} from "lucide-react";
+
+import {
   PieChart,
   Pie,
   Cell,
@@ -52,7 +71,10 @@ function Dashboard() {
     return (
       <AdminLayout>
         <div className="max-w-7xl mx-auto">
-          <p className="text-gray-600 text-lg">Loading dashboard...</p>
+          <div className="bg-white border border-gray-100 rounded-2xl p-8 flex items-center gap-3 text-gray-600">
+            <BarChart3 size={22} />
+            Loading dashboard...
+          </div>
         </div>
       </AdminLayout>
     );
@@ -62,7 +84,10 @@ function Dashboard() {
     return (
       <AdminLayout>
         <div className="max-w-7xl mx-auto">
-          <p className="text-red-600 text-lg">{error}</p>
+          <div className="bg-red-50 border border-red-100 text-red-700 rounded-2xl p-6 flex items-center gap-3">
+            <AlertTriangle size={22} />
+            {error}
+          </div>
         </div>
       </AdminLayout>
     );
@@ -81,20 +106,20 @@ function Dashboard() {
   );
 
   const orderCards = [
-    { label: "Total Orders", value: summary.total_orders },
-    { label: "Pending Orders", value: summary.pending_orders },
-    { label: "Confirmed Orders", value: summary.confirmed_orders },
-    { label: "Processing Orders", value: summary.processing_orders },
-    { label: "Delivered Orders", value: summary.delivered_orders },
-    { label: "Cancelled Orders", value: summary.cancelled_orders },
+    { label: "Total Orders", value: summary.total_orders, icon: ShoppingBag },
+    { label: "Pending Orders", value: summary.pending_orders, icon: Clock },
+    { label: "Confirmed Orders", value: summary.confirmed_orders, icon: CheckCircle },
+    { label: "Processing Orders", value: summary.processing_orders, icon: Truck },
+    { label: "Delivered Orders", value: summary.delivered_orders, icon: PackageCheck },
+    { label: "Cancelled Orders", value: summary.cancelled_orders, icon: XCircle },
   ];
 
   const productCards = [
-    { label: "Total Products", value: summary.total_products },
-    { label: "Active Products", value: summary.active_products },
-    { label: "Inactive Products", value: summary.inactive_products },
-    { label: "Low Stock Products", value: lowStockProducts.length },
-    { label: "Out of Stock Products", value: outOfStockProducts.length },
+    { label: "Total Products", value: summary.total_products, icon: Boxes },
+    { label: "Active Products", value: summary.active_products, icon: PackageCheck },
+    { label: "Inactive Products", value: summary.inactive_products, icon: PackageX },
+    { label: "Low Stock Products", value: lowStockProducts.length, icon: AlertTriangle },
+    { label: "Out of Stock Products", value: outOfStockProducts.length, icon: PackageX },
   ];
 
   const orderStatusData = [
@@ -111,25 +136,32 @@ function Dashboard() {
     <AdminLayout>
       <div className="max-w-7xl mx-auto">
         <div className="mb-10">
-          <p className="text-blue-600 font-semibold uppercase tracking-wide text-sm">
+          <p className="text-blue-600 font-semibold uppercase tracking-wide text-sm flex items-center gap-2">
+            <BarChart3 size={16} />
             Business Overview
           </p>
+
           <h1 className="text-4xl font-extrabold text-gray-900">
             Marketplace Dashboard
           </h1>
+
           <p className="text-gray-500 mt-2">
             Monitor orders, revenue, products, stock alerts, and recent activity.
           </p>
         </div>
 
         {stockAlertError && (
-          <p className="bg-yellow-50 border border-yellow-100 text-yellow-700 px-4 py-3 rounded-xl mb-8">
+          <p className="bg-yellow-50 border border-yellow-100 text-yellow-700 px-4 py-3 rounded-xl mb-8 flex items-center gap-2">
+            <AlertTriangle size={18} />
             {stockAlertError}
           </p>
         )}
 
         <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <div className="w-12 h-12 bg-blue-100 text-blue-700 rounded-xl flex items-center justify-center mb-4">
+              <Boxes size={24} />
+            </div>
             <p className="text-gray-500 text-sm mb-2">Total Products</p>
             <h2 className="text-3xl font-extrabold text-gray-900">
               {summary.total_products}
@@ -137,18 +169,20 @@ function Dashboard() {
           </div>
 
           <div className="bg-yellow-50 rounded-2xl shadow-sm border border-yellow-100 p-6">
-            <p className="text-yellow-700 text-sm mb-2">
-              Low Stock Products
-            </p>
+            <div className="w-12 h-12 bg-yellow-100 text-yellow-700 rounded-xl flex items-center justify-center mb-4">
+              <AlertTriangle size={24} />
+            </div>
+            <p className="text-yellow-700 text-sm mb-2">Low Stock Products</p>
             <h2 className="text-3xl font-extrabold text-yellow-700">
               {lowStockProducts.length}
             </h2>
           </div>
 
           <div className="bg-red-50 rounded-2xl shadow-sm border border-red-100 p-6">
-            <p className="text-red-700 text-sm mb-2">
-              Out of Stock Products
-            </p>
+            <div className="w-12 h-12 bg-red-100 text-red-700 rounded-xl flex items-center justify-center mb-4">
+              <PackageX size={24} />
+            </div>
+            <p className="text-red-700 text-sm mb-2">Out of Stock Products</p>
             <h2 className="text-3xl font-extrabold text-red-700">
               {outOfStockProducts.length}
             </h2>
@@ -159,7 +193,8 @@ function Dashboard() {
           <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-12">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">
+                <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                  <AlertTriangle size={24} className="text-yellow-600" />
                   Inventory Alerts
                 </h2>
                 <p className="text-gray-500 mt-1">
@@ -169,8 +204,9 @@ function Dashboard() {
 
               <Link
                 to="/admin-products"
-                className="bg-blue-600 text-white px-5 py-3 rounded-xl font-semibold hover:bg-blue-700 transition"
+                className="bg-blue-600 text-white px-5 py-3 rounded-xl font-semibold hover:bg-blue-700 transition flex items-center gap-2"
               >
+                <Package size={18} />
                 Open Product Manager
               </Link>
             </div>
@@ -184,24 +220,32 @@ function Dashboard() {
                     className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 border border-gray-100 rounded-xl p-4"
                   >
                     <div>
-                      <p className="font-bold text-gray-900">{product.name}</p>
+                      <p className="font-bold text-gray-900 flex items-center gap-2">
+                        <Package size={17} />
+                        {product.name}
+                      </p>
                       <p className="text-sm text-gray-500">
                         {product.category_name}
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-wrap items-center gap-3">
                       <span className="font-semibold text-gray-700">
                         Stock: {product.stock_quantity}
                       </span>
 
                       <span
-                        className={`px-3 py-1 rounded-full text-xs font-bold ${
+                        className={`px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 ${
                           product.stock_quantity <= 0
                             ? "bg-red-100 text-red-700"
                             : "bg-yellow-100 text-yellow-700"
                         }`}
                       >
+                        {product.stock_quantity <= 0 ? (
+                          <PackageX size={13} />
+                        ) : (
+                          <AlertTriangle size={13} />
+                        )}
                         {product.stock_quantity <= 0
                           ? "Out of Stock"
                           : "Low Stock"}
@@ -221,27 +265,37 @@ function Dashboard() {
         )}
 
         <section className="mb-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+            <ClipboardList size={24} />
             Order Analytics
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {orderCards.map((card, index) => (
-              <div
-                key={index}
-                className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6"
-              >
-                <p className="text-gray-500 text-sm mb-2">{card.label}</p>
-                <h2 className="text-3xl font-extrabold text-gray-900">
-                  {card.value}
-                </h2>
-              </div>
-            ))}
+            {orderCards.map((card, index) => {
+              const Icon = card.icon;
+
+              return (
+                <div
+                  key={index}
+                  className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6"
+                >
+                  <div className="w-11 h-11 bg-blue-50 text-blue-700 rounded-xl flex items-center justify-center mb-4">
+                    <Icon size={22} />
+                  </div>
+
+                  <p className="text-gray-500 text-sm mb-2">{card.label}</p>
+                  <h2 className="text-3xl font-extrabold text-gray-900">
+                    {card.value}
+                  </h2>
+                </div>
+              );
+            })}
           </div>
         </section>
 
         <section className="mb-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+            <PieChartIcon />
             Orders by Status
           </h2>
 
@@ -272,27 +326,37 @@ function Dashboard() {
         </section>
 
         <section className="mb-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+            <Package size={24} />
             Product Analytics
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
-            {productCards.map((card, index) => (
-              <div
-                key={index}
-                className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6"
-              >
-                <p className="text-gray-500 text-sm mb-2">{card.label}</p>
-                <h2 className="text-3xl font-extrabold text-gray-900">
-                  {card.value}
-                </h2>
-              </div>
-            ))}
+            {productCards.map((card, index) => {
+              const Icon = card.icon;
+
+              return (
+                <div
+                  key={index}
+                  className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6"
+                >
+                  <div className="w-11 h-11 bg-gray-50 text-gray-700 rounded-xl flex items-center justify-center mb-4">
+                    <Icon size={22} />
+                  </div>
+
+                  <p className="text-gray-500 text-sm mb-2">{card.label}</p>
+                  <h2 className="text-3xl font-extrabold text-gray-900">
+                    {card.value}
+                  </h2>
+                </div>
+              );
+            })}
           </div>
         </section>
 
         <section className="mb-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+            <Store size={24} />
             Products by Category
           </h2>
 
@@ -316,7 +380,8 @@ function Dashboard() {
         </section>
 
         <section className="mb-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+            <BarChart3 size={24} />
             Products by Category Chart
           </h2>
 
@@ -342,9 +407,11 @@ function Dashboard() {
 
         <section className="mb-12">
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <p className="text-gray-500 text-sm mb-2">
-              Delivered Revenue
-            </p>
+            <div className="w-12 h-12 bg-green-100 text-green-700 rounded-xl flex items-center justify-center mb-4">
+              <Wallet size={24} />
+            </div>
+
+            <p className="text-gray-500 text-sm mb-2">Delivered Revenue</p>
 
             <h2 className="text-4xl font-extrabold text-green-600">
               UGX {Number(summary.total_revenue).toLocaleString()}
@@ -353,7 +420,8 @@ function Dashboard() {
         </section>
 
         <section className="mb-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+            <TrendingUp size={24} />
             Monthly Sales Trend
           </h2>
 
@@ -392,7 +460,8 @@ function Dashboard() {
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">
+                <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                  <ShoppingBag size={24} />
                   Recent Orders
                 </h2>
                 <p className="text-gray-500 mt-1">
@@ -402,8 +471,9 @@ function Dashboard() {
 
               <Link
                 to="/admin-orders"
-                className="bg-blue-600 text-white px-5 py-3 rounded-xl font-semibold hover:bg-blue-700 transition"
+                className="bg-blue-600 text-white px-5 py-3 rounded-xl font-semibold hover:bg-blue-700 transition flex items-center gap-2"
               >
+                <ClipboardList size={18} />
                 View All Orders
               </Link>
             </div>
@@ -439,8 +509,9 @@ function Dashboard() {
                         <td className="py-4">
                           <Link
                             to={`/admin-orders/${order.id}`}
-                            className="bg-blue-100 text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-200 transition"
+                            className="bg-blue-100 text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-200 transition inline-flex items-center gap-2"
                           >
+                            <Eye size={16} />
                             View
                           </Link>
                         </td>
@@ -455,6 +526,10 @@ function Dashboard() {
       </div>
     </AdminLayout>
   );
+}
+
+function PieChartIcon() {
+  return <BarChart3 size={24} />;
 }
 
 export default Dashboard;
