@@ -3,6 +3,21 @@ import { Link } from "react-router-dom";
 import api from "../api/api";
 import getCsrfToken from "../utils/getCsrfToken";
 import AdminLayout from "../layouts/AdminLayout";
+import {
+  AlertTriangle,
+  CheckCircle,
+  ChevronLeft,
+  ChevronRight,
+  ClipboardList,
+  Clock,
+  Eye,
+  Filter,
+  PackageCheck,
+  Search,
+  Truck,
+  Wallet,
+  XCircle,
+} from "lucide-react";
 
 function AdminOrders() {
   const ORDERS_PER_PAGE = 8;
@@ -144,12 +159,23 @@ function AdminOrders() {
       cancelled: "bg-red-100 text-red-700",
     };
 
+    const icons = {
+      pending: Clock,
+      confirmed: CheckCircle,
+      processing: Truck,
+      delivered: PackageCheck,
+      cancelled: XCircle,
+    };
+
+    const Icon = icons[status] || ClipboardList;
+
     return (
       <span
-        className={`px-3 py-1 rounded-full text-xs font-bold capitalize ${
+        className={`px-3 py-1 rounded-full text-xs font-bold capitalize inline-flex items-center gap-1 ${
           styles[status] || "bg-gray-100 text-gray-700"
         }`}
       >
+        <Icon size={13} />
         {status}
       </span>
     );
@@ -159,36 +185,48 @@ function AdminOrders() {
     <AdminLayout>
       <div className="max-w-7xl mx-auto">
         <div className="mb-10">
-          <p className="text-blue-600 font-semibold uppercase tracking-wide text-sm">
+          <p className="text-blue-600 font-semibold uppercase tracking-wide text-sm flex items-center gap-2">
+            <ClipboardList size={16} />
             Admin Management
           </p>
+
           <h1 className="text-4xl font-extrabold text-gray-900">
             Order Manager
           </h1>
+
           <p className="text-gray-500 mt-2">
             Search, filter, sort, review, and update customer orders.
           </p>
         </div>
 
         {error && (
-          <p className="bg-red-100 text-red-600 px-4 py-3 rounded-xl mb-6">
+          <p className="bg-red-100 text-red-600 px-4 py-3 rounded-xl mb-6 flex items-center gap-2">
+            <AlertTriangle size={18} />
             {error}
           </p>
         )}
 
         <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-5">
+          <h2 className="text-2xl font-bold text-gray-900 mb-5 flex items-center gap-2">
+            <Filter size={22} />
             Order Filters
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <input
-              type="text"
-              placeholder="Search by order ID, customer, phone, or city..."
-              value={filters.search}
-              onChange={(e) => handleFilterChange("search", e.target.value)}
-              className="md:col-span-2 border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            <div className="md:col-span-2 relative">
+              <Search
+                size={18}
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+              />
+
+              <input
+                type="text"
+                placeholder="Search by order ID, customer, phone, or city..."
+                value={filters.search}
+                onChange={(e) => handleFilterChange("search", e.target.value)}
+                className="w-full border border-gray-300 rounded-xl pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
 
             <select
               value={filters.status}
@@ -227,8 +265,9 @@ function AdminOrders() {
 
             <button
               onClick={clearFilters}
-              className="bg-gray-100 text-gray-700 px-5 py-3 rounded-xl font-semibold hover:bg-gray-200 transition"
+              className="bg-gray-100 text-gray-700 px-5 py-3 rounded-xl font-semibold hover:bg-gray-200 transition inline-flex items-center justify-center gap-2"
             >
+              <XCircle size={18} />
               Clear Filters
             </button>
           </div>
@@ -264,7 +303,10 @@ function AdminOrders() {
                   <td className="py-4 pr-4">{order.city}</td>
 
                   <td className="py-4 pr-4 text-green-600 font-semibold">
-                    UGX {Number(order.total_amount).toLocaleString()}
+                    <span className="inline-flex items-center gap-1">
+                      <Wallet size={15} />
+                      UGX {Number(order.total_amount).toLocaleString()}
+                    </span>
                   </td>
 
                   <td className="py-4 pr-4">
@@ -292,8 +334,9 @@ function AdminOrders() {
                   <td className="py-4 pr-4">
                     <Link
                       to={`/admin-orders/${order.id}`}
-                      className="bg-blue-100 text-blue-600 px-4 py-2 rounded-lg font-medium hover:bg-blue-200 transition"
+                      className="bg-blue-100 text-blue-600 px-4 py-2 rounded-lg font-medium hover:bg-blue-200 transition inline-flex items-center gap-2"
                     >
+                      <Eye size={15} />
                       View
                     </Link>
                   </td>
@@ -304,16 +347,21 @@ function AdminOrders() {
 
           {sortedOrders.length === 0 && (
             <div className="text-center py-10">
+              <ClipboardList size={42} className="mx-auto text-gray-400 mb-3" />
+
               <h3 className="text-2xl font-bold text-gray-900 mb-2">
                 No orders found
               </h3>
+
               <p className="text-gray-600 mb-5">
                 No customer orders match your current filters.
               </p>
+
               <button
                 onClick={clearFilters}
-                className="bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-700 transition"
+                className="bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-700 transition inline-flex items-center gap-2"
               >
+                <ClipboardList size={18} />
                 View All Orders
               </button>
             </div>
@@ -332,17 +380,19 @@ function AdminOrders() {
               <button
                 onClick={() => setCurrentPage((page) => page - 1)}
                 disabled={currentPage === 1}
-                className="px-5 py-2.5 rounded-xl border border-gray-300 text-gray-700 font-semibold hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-5 py-2.5 rounded-xl border border-gray-300 text-gray-700 font-semibold hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2"
               >
+                <ChevronLeft size={18} />
                 Previous
               </button>
 
               <button
                 onClick={() => setCurrentPage((page) => page + 1)}
                 disabled={currentPage === totalPages}
-                className="px-5 py-2.5 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-5 py-2.5 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2"
               >
                 Next
+                <ChevronRight size={18} />
               </button>
             </div>
           </div>
