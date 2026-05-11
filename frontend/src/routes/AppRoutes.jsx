@@ -17,6 +17,7 @@ import MyOrders from "../pages/MyOrders";
 import Account from "../pages/Account";
 import OrderDetail from "../pages/OrderDetail";
 import AdminOrderDetail from "../pages/AdminOrderDetail";
+import Wishlist from "../pages/Wishlist";
 
 function AppRoutes() {
   return (
@@ -32,7 +33,7 @@ function AppRoutes() {
         <Route path="/my-orders" element={<MyOrders />} />
         <Route path="/account" element={<Account />} />
         <Route path="/my-orders/:id" element={<OrderDetail />} />
-
+        <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/admin-login" element={<AdminLogin />} />
 
         <Route
