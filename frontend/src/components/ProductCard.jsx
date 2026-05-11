@@ -1,11 +1,25 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import { Eye, ShoppingCart, CheckCircle, Package, Star } from "lucide-react";
+import {
+  Eye,
+  ShoppingCart,
+  CheckCircle,
+  Package,
+  Star,
+  Heart,
+} from "lucide-react";
 import { useCart } from "../context/CartContext";
 
 function ProductCard({ product }) {
   const { addToCart } = useCart();
   const [message, setMessage] = useState("");
+
+  const [isWishlisted, setIsWishlisted] = useState(() => {
+    const savedWishlist =
+      JSON.parse(localStorage.getItem("kubiz-wishlist")) || [];
+
+    return savedWishlist.some((item) => item.id === product.id);
+  });
 
   const imageUrl = product.image
     ? product.image.startsWith("http")
@@ -26,6 +40,33 @@ function ProductCard({ product }) {
 
     addToCart(product);
     setMessage("Added to cart");
+
+    setTimeout(() => {
+      setMessage("");
+    }, 1500);
+  };
+
+  const toggleWishlist = () => {
+    const savedWishlist =
+      JSON.parse(localStorage.getItem("kubiz-wishlist")) || [];
+
+    let updatedWishlist;
+
+    if (isWishlisted) {
+      updatedWishlist = savedWishlist.filter((item) => item.id !== product.id);
+      setIsWishlisted(false);
+      setMessage("Removed from wishlist");
+    } else {
+      updatedWishlist = [
+        product,
+        ...savedWishlist.filter((item) => item.id !== product.id),
+      ];
+      setIsWishlisted(true);
+      setMessage("Saved to wishlist");
+    }
+
+    localStorage.setItem("kubiz-wishlist", JSON.stringify(updatedWishlist));
+    window.dispatchEvent(new Event("wishlistUpdated"));
 
     setTimeout(() => {
       setMessage("");
@@ -66,6 +107,18 @@ function ProductCard({ product }) {
         >
           {isOutOfStock ? "Out" : isLowStock ? "Low Stock" : "In Stock"}
         </span>
+
+        <button
+          onClick={toggleWishlist}
+          className={`absolute bottom-2 right-2 p-2 rounded-full shadow transition ${
+            isWishlisted
+              ? "bg-red-600 text-white"
+              : "bg-white text-gray-600 hover:text-red-600"
+          }`}
+          title={isWishlisted ? "Remove from wishlist" : "Save to wishlist"}
+        >
+          <Heart size={16} fill={isWishlisted ? "currentColor" : "none"} />
+        </button>
       </div>
 
       <div className="p-4">
