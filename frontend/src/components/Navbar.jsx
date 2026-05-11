@@ -1,11 +1,12 @@
 import { Link, useLocation } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 
 import {
   BarChart3,
   ClipboardList,
+  Heart,
   Home,
   LayoutDashboard,
   LogIn,
@@ -26,6 +27,7 @@ function Navbar({ onSearch }) {
 
   const [searchText, setSearchText] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [wishlistCount, setWishlistCount] = useState(0);
 
   const isAdmin = localStorage.getItem("isAdmin") === "true";
 
@@ -33,6 +35,23 @@ function Navbar({ onSearch }) {
     (total, item) => total + Number(item.quantity || 1),
     0
   );
+
+  useEffect(() => {
+    const updateWishlistCount = () => {
+      const savedWishlist =
+        JSON.parse(localStorage.getItem("kubiz-wishlist")) || [];
+
+      setWishlistCount(savedWishlist.length);
+    };
+
+    updateWishlistCount();
+
+    window.addEventListener("wishlistUpdated", updateWishlistCount);
+
+    return () => {
+      window.removeEventListener("wishlistUpdated", updateWishlistCount);
+    };
+  }, []);
 
   const isActive = (path) => location.pathname === path;
 
@@ -128,6 +147,20 @@ function Navbar({ onSearch }) {
                   <ClipboardList size={17} />
                   Categories
                 </a>
+
+                <Link
+                  to="/wishlist"
+                  className="relative flex items-center gap-2 text-gray-700 hover:text-red-600 transition"
+                >
+                  <Heart size={18} />
+                  Wishlist
+
+                  {wishlistCount > 0 && (
+                    <span className="bg-red-600 text-white text-xs px-2 py-1 rounded-full">
+                      {wishlistCount}
+                    </span>
+                  )}
+                </Link>
               </>
             )}
 
@@ -278,6 +311,15 @@ function Navbar({ onSearch }) {
                     <ClipboardList size={18} />
                     Categories
                   </a>
+
+                  <Link
+                    to="/wishlist"
+                    onClick={closeMenu}
+                    className={mobileLinkClass}
+                  >
+                    <Heart size={18} />
+                    Wishlist ({wishlistCount})
+                  </Link>
                 </>
               )}
 
