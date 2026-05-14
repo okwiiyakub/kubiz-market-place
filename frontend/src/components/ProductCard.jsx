@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Eye,
   ShoppingCart,
@@ -13,6 +13,8 @@ import { useCart } from "../context/CartContext";
 function ProductCard({ product }) {
   const { addToCart } = useCart();
   const [message, setMessage] = useState("");
+  const [averageRating, setAverageRating] = useState(0);
+  const [reviewCount, setReviewCount] = useState(0);
 
   const [isWishlisted, setIsWishlisted] = useState(() => {
     const savedWishlist =
@@ -20,6 +22,26 @@ function ProductCard({ product }) {
 
     return savedWishlist.some((item) => item.id === product.id);
   });
+
+  useEffect(() => {
+    const savedReviews =
+      JSON.parse(localStorage.getItem("kubiz-product-reviews")) || {};
+
+    const productReviews = savedReviews[product.id] || [];
+
+    if (productReviews.length > 0) {
+      const total = productReviews.reduce(
+        (sum, review) => sum + Number(review.rating),
+        0
+      );
+
+      setAverageRating((total / productReviews.length).toFixed(1));
+      setReviewCount(productReviews.length);
+    } else {
+      setAverageRating(0);
+      setReviewCount(0);
+    }
+  }, [product.id]);
 
   const imageUrl = product.image
     ? product.image.startsWith("http")
@@ -129,6 +151,27 @@ function ProductCard({ product }) {
         <h3 className="text-base font-bold text-gray-800 mb-1 line-clamp-2 min-h-[44px]">
           {product.name}
         </h3>
+
+        <div className="flex items-center gap-1 mb-2">
+          {[1, 2, 3, 4, 5].map((star) => (
+            <Star
+              key={star}
+              size={13}
+              className={
+                star <= Math.round(averageRating)
+                  ? "text-yellow-500"
+                  : "text-gray-300"
+              }
+              fill={star <= Math.round(averageRating) ? "currentColor" : "none"}
+            />
+          ))}
+
+          <span className="text-xs text-gray-500 ml-1">
+            {reviewCount > 0
+              ? `${averageRating} (${reviewCount})`
+              : "No reviews"}
+          </span>
+        </div>
 
         <p className="text-gray-500 text-sm leading-5 mb-3 min-h-[40px]">
           {shortDescription}
