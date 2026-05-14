@@ -14,6 +14,7 @@ import {
   Star,
   Tag,
   Truck,
+  User,
 } from "lucide-react";
 import api from "../api/api";
 import Navbar from "../components/Navbar";
@@ -32,6 +33,13 @@ function ProductDetail() {
   const [loading, setLoading] = useState(true);
   const [addedMessage, setAddedMessage] = useState("");
   const [relatedProducts, setRelatedProducts] = useState([]);
+  const [reviews, setReviews] = useState([]);
+
+  const [reviewForm, setReviewForm] = useState({
+    name: "",
+    rating: 5,
+    comment: "",
+  });
 
   useEffect(() => {
     api.get(`products/${slug}/`)
@@ -79,6 +87,11 @@ function ProductDetail() {
       .catch(() => {
         setRelatedProducts([]);
       });
+
+    const savedReviews =
+      JSON.parse(localStorage.getItem("kubiz-product-reviews")) || {};
+
+    setReviews(savedReviews[product.id] || []);
   }, [product]);
 
   const isOutOfStock = product && product.stock_quantity <= 0;
@@ -87,6 +100,14 @@ function ProductDetail() {
     product && product.stock_quantity > 0 && product.stock_quantity <= 5;
 
   const reachedStockLimit = product && quantity >= product.stock_quantity;
+
+  const averageRating =
+    reviews.length > 0
+      ? (
+          reviews.reduce((sum, review) => sum + Number(review.rating), 0) /
+          reviews.length
+        ).toFixed(1)
+      : 0;
 
   const increaseQuantity = () => {
     if (product && quantity < product.stock_quantity) {
@@ -119,6 +140,42 @@ function ProductDetail() {
 
     setAddedMessage(`${quantity} item(s) added to cart.`);
     setTimeout(() => setAddedMessage(""), 2500);
+  };
+
+  const handleReviewSubmit = (e) => {
+    e.preventDefault();
+
+    if (!reviewForm.name.trim() || !reviewForm.comment.trim()) {
+      alert("Please enter your name and review comment.");
+      return;
+    }
+
+    const savedReviews =
+      JSON.parse(localStorage.getItem("kubiz-product-reviews")) || {};
+
+    const newReview = {
+      id: Date.now(),
+      name: reviewForm.name,
+      rating: Number(reviewForm.rating),
+      comment: reviewForm.comment,
+      date: new Date().toLocaleDateString(),
+    };
+
+    const updatedProductReviews = [newReview, ...(savedReviews[product.id] || [])];
+
+    const updatedReviews = {
+      ...savedReviews,
+      [product.id]: updatedProductReviews,
+    };
+
+    localStorage.setItem("kubiz-product-reviews", JSON.stringify(updatedReviews));
+    setReviews(updatedProductReviews);
+
+    setReviewForm({
+      name: "",
+      rating: 5,
+      comment: "",
+    });
   };
 
   if (loading) {
@@ -248,6 +305,31 @@ function ProductDetail() {
               {product.name}
             </h1>
 
+            <div className="flex items-center gap-2 mb-4">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <Star
+                  key={star}
+                  size={18}
+                  className={
+                    star <= Math.round(averageRating)
+                      ? "text-yellow-500"
+                      : "text-gray-300"
+                  }
+                  fill={
+                    star <= Math.round(averageRating) ? "currentColor" : "none"
+                  }
+                />
+              ))}
+
+              <span className="text-sm text-gray-500">
+                {reviews.length > 0
+                  ? `${averageRating} out of 5 (${reviews.length} review${
+                      reviews.length > 1 ? "s" : ""
+                    })`
+                  : "No reviews yet"}
+              </span>
+            </div>
+
             <p className="text-3xl font-extrabold text-green-600 mb-5">
               UGX {Number(product.price).toLocaleString()}
             </p>
@@ -358,28 +440,158 @@ function ProductDetail() {
             <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="bg-gray-50 rounded-xl p-4 text-center flex flex-col items-center">
                 <ShieldCheck size={22} className="text-blue-600 mb-2" />
-
                 <p className="font-bold text-gray-900">Secure</p>
-
                 <p className="text-xs text-gray-500">Safe ordering</p>
               </div>
 
               <div className="bg-gray-50 rounded-xl p-4 text-center flex flex-col items-center">
                 <Headphones size={22} className="text-green-600 mb-2" />
-
                 <p className="font-bold text-gray-900">Support</p>
-
                 <p className="text-xs text-gray-500">WhatsApp help</p>
               </div>
 
               <div className="bg-gray-50 rounded-xl p-4 text-center flex flex-col items-center">
                 <Truck size={22} className="text-orange-600 mb-2" />
-
                 <p className="font-bold text-gray-900">Tracking</p>
-
                 <p className="text-xs text-gray-500">Order updates</p>
               </div>
             </div>
+          </div>
+        </section>
+
+        <section className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2 flex items-center gap-2">
+              <Star size={24} className="text-yellow-500" />
+              Customer Reviews
+            </h2>
+
+            <p className="text-gray-500 mb-6">
+              See what customers think about this product.
+            </p>
+
+            {reviews.length === 0 ? (
+              <div className="bg-gray-50 rounded-xl p-6 text-center">
+                <Star size={36} className="mx-auto text-gray-400 mb-3" />
+                <h3 className="text-lg font-bold text-gray-900 mb-2">
+                  No reviews yet
+                </h3>
+                <p className="text-gray-500">
+                  Be the first to review this product.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {reviews.map((review) => (
+                  <div
+                    key={review.id}
+                    className="border border-gray-100 rounded-xl p-4"
+                  >
+                    <div className="flex items-center justify-between gap-3 mb-2">
+                      <p className="font-bold text-gray-900 flex items-center gap-2">
+                        <User size={17} />
+                        {review.name}
+                      </p>
+
+                      <span className="text-xs text-gray-500">
+                        {review.date}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-1 mb-2">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star
+                          key={star}
+                          size={15}
+                          className={
+                            star <= review.rating
+                              ? "text-yellow-500"
+                              : "text-gray-300"
+                          }
+                          fill={star <= review.rating ? "currentColor" : "none"}
+                        />
+                      ))}
+                    </div>
+
+                    <p className="text-gray-600 leading-6">
+                      {review.comment}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              Write a Review
+            </h2>
+
+            <p className="text-gray-500 mb-6">
+              Share your experience with this product.
+            </p>
+
+            <form onSubmit={handleReviewSubmit}>
+              <div className="mb-5">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Your Name
+                </label>
+
+                <input
+                  type="text"
+                  value={reviewForm.name}
+                  onChange={(e) =>
+                    setReviewForm({ ...reviewForm, name: e.target.value })
+                  }
+                  className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter your name"
+                />
+              </div>
+
+              <div className="mb-5">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Rating
+                </label>
+
+                <select
+                  value={reviewForm.rating}
+                  onChange={(e) =>
+                    setReviewForm({ ...reviewForm, rating: e.target.value })
+                  }
+                  className="w-full border border-gray-300 rounded-xl px-4 py-3"
+                >
+                  <option value="5">5 Stars - Excellent</option>
+                  <option value="4">4 Stars - Very Good</option>
+                  <option value="3">3 Stars - Good</option>
+                  <option value="2">2 Stars - Fair</option>
+                  <option value="1">1 Star - Poor</option>
+                </select>
+              </div>
+
+              <div className="mb-6">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Comment
+                </label>
+
+                <textarea
+                  value={reviewForm.comment}
+                  onChange={(e) =>
+                    setReviewForm({ ...reviewForm, comment: e.target.value })
+                  }
+                  rows="5"
+                  className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Write your review..."
+                ></textarea>
+              </div>
+
+              <button
+                type="submit"
+                className="bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-700 transition flex items-center justify-center gap-2"
+              >
+                <Star size={18} />
+                Submit Review
+              </button>
+            </form>
           </div>
         </section>
 
