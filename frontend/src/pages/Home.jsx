@@ -7,6 +7,7 @@ import CategoryCard from "../components/CategoryCard";
 import ProductCard from "../components/ProductCard";
 import Footer from "../components/Footer";
 import FloatingWhatsAppButton from "../components/FloatingWhatsAppButton";
+import MobileBottomNav from "../components/MobileBottomNav";
 
 function Home() {
   const PRODUCTS_PER_PAGE = 12;
@@ -113,7 +114,7 @@ function Home() {
     "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5";
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="min-h-screen bg-gray-50 pb-20">
       <Navbar onSearch={setSearchTerm} />
       <Hero />
       <PopularBrands />
@@ -369,6 +370,7 @@ function Home() {
 
       <Footer />
       <FloatingWhatsAppButton />
+      <MobileBottomNav />
     </div>
   );
 }
