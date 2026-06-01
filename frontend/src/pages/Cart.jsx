@@ -3,6 +3,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import FloatingWhatsAppButton from "../components/FloatingWhatsAppButton";
 import { useCart } from "../context/CartContext";
+import MobileBottomNav from "../components/MobileBottomNav";
 
 function Cart() {
   const {
@@ -24,7 +25,7 @@ function Cart() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pb-20">
       <Navbar />
 
       <main className="max-w-7xl mx-auto px-6 py-12">
@@ -236,6 +237,7 @@ function Cart() {
 
       <Footer />
       <FloatingWhatsAppButton />
+      <MobileBottomNav />
     </div>
   );
 }
