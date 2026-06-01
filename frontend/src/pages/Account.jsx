@@ -3,6 +3,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import api from "../api/api";
 import getCsrfToken from "../utils/getCsrfToken";
+import MobileBottomNav from "../components/MobileBottomNav";
 
 function Account() {
   const [customer, setCustomer] = useState(null);
@@ -168,7 +169,7 @@ function Account() {
 
   if (!customer) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 pb-20">
         <Navbar />
 
         <main className="max-w-4xl mx-auto px-6 py-16">
@@ -183,7 +184,7 @@ function Account() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pb-20">
       <Navbar />
 
       <main className="max-w-6xl mx-auto px-6 py-16">
@@ -382,6 +383,7 @@ function Account() {
       </main>
 
       <Footer />
+      <MobileBottomNav />
     </div>
   );
 }
