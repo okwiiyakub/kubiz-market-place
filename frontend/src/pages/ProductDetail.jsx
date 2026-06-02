@@ -5,6 +5,7 @@ import {
   CheckCircle,
   ChevronLeft,
   Headphones,
+  Image,
   MessageCircle,
   Minus,
   Package,
@@ -15,11 +16,13 @@ import {
   Tag,
   Truck,
   User,
+  ZoomIn,
 } from "lucide-react";
 import api from "../api/api";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import FloatingWhatsAppButton from "../components/FloatingWhatsAppButton";
+import MobileBottomNav from "../components/MobileBottomNav";
 import { useCart } from "../context/CartContext";
 import ProductCard from "../components/ProductCard";
 
@@ -34,12 +37,53 @@ function ProductDetail() {
   const [addedMessage, setAddedMessage] = useState("");
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [reviews, setReviews] = useState([]);
+  const [selectedImage, setSelectedImage] = useState("");
 
   const [reviewForm, setReviewForm] = useState({
     name: "",
     rating: 5,
     comment: "",
   });
+
+  const formatImageUrl = (imagePath) => {
+    if (!imagePath) return null;
+
+    return imagePath.startsWith("http")
+      ? imagePath
+      : `http://localhost:8000${imagePath}`;
+  };
+
+  const getProductImages = (productData) => {
+    if (!productData) return [];
+
+    const images = [];
+
+    if (productData.image) {
+      images.push(formatImageUrl(productData.image));
+    }
+
+    if (Array.isArray(productData.gallery_images)) {
+      productData.gallery_images.forEach((item) => {
+        if (typeof item === "string") {
+          images.push(formatImageUrl(item));
+        } else if (item.image) {
+          images.push(formatImageUrl(item.image));
+        }
+      });
+    }
+
+    if (Array.isArray(productData.images)) {
+      productData.images.forEach((item) => {
+        if (typeof item === "string") {
+          images.push(formatImageUrl(item));
+        } else if (item.image) {
+          images.push(formatImageUrl(item.image));
+        }
+      });
+    }
+
+    return [...new Set(images.filter(Boolean))];
+  };
 
   useEffect(() => {
     api.get(`products/${slug}/`)
@@ -49,6 +93,9 @@ function ProductDetail() {
         setProduct(viewedProduct);
         setLoading(false);
         setQuantity(1);
+
+        const images = getProductImages(viewedProduct);
+        setSelectedImage(images[0] || "");
 
         const savedViewed =
           JSON.parse(localStorage.getItem("kubiz-recently-viewed")) || [];
@@ -93,6 +140,8 @@ function ProductDetail() {
 
     setReviews(savedReviews[product.id] || []);
   }, [product]);
+
+  const productImages = getProductImages(product);
 
   const isOutOfStock = product && product.stock_quantity <= 0;
 
@@ -161,14 +210,20 @@ function ProductDetail() {
       date: new Date().toLocaleDateString(),
     };
 
-    const updatedProductReviews = [newReview, ...(savedReviews[product.id] || [])];
+    const updatedProductReviews = [
+      newReview,
+      ...(savedReviews[product.id] || []),
+    ];
 
     const updatedReviews = {
       ...savedReviews,
       [product.id]: updatedProductReviews,
     };
 
-    localStorage.setItem("kubiz-product-reviews", JSON.stringify(updatedReviews));
+    localStorage.setItem(
+      "kubiz-product-reviews",
+      JSON.stringify(updatedReviews)
+    );
     setReviews(updatedProductReviews);
 
     setReviewForm({
@@ -180,7 +235,7 @@ function ProductDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 pb-20">
         <Navbar />
 
         <main className="max-w-7xl mx-auto px-6 py-16">
@@ -191,13 +246,14 @@ function ProductDetail() {
         </main>
 
         <Footer />
+        <MobileBottomNav />
       </div>
     );
   }
 
   if (error || !product) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 pb-20">
         <Navbar />
 
         <main className="max-w-7xl mx-auto px-6 py-16">
@@ -218,15 +274,10 @@ function ProductDetail() {
         </main>
 
         <Footer />
+        <MobileBottomNav />
       </div>
     );
   }
-
-  const imageUrl = product.image
-    ? product.image.startsWith("http")
-      ? product.image
-      : `http://localhost:8000${product.image}`
-    : null;
 
   const whatsappNumber = "2567XXXXXXXX";
 
@@ -239,7 +290,7 @@ function ProductDetail() {
   )}`;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pb-20">
       <Navbar />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
@@ -253,12 +304,12 @@ function ProductDetail() {
 
         <section className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden grid grid-cols-1 lg:grid-cols-2 gap-6 p-5 lg:p-7">
           <div>
-            <div className="bg-gray-100 rounded-2xl overflow-hidden border border-gray-100">
-              {imageUrl ? (
+            <div className="relative bg-gray-100 rounded-2xl overflow-hidden border border-gray-100 group">
+              {selectedImage ? (
                 <img
-                  src={imageUrl}
+                  src={selectedImage}
                   alt={product.name}
-                  className="w-full h-[320px] lg:h-[420px] object-cover"
+                  className="w-full h-[320px] lg:h-[420px] object-cover transition duration-500 group-hover:scale-110"
                 />
               ) : (
                 <div className="w-full h-[320px] lg:h-[420px] flex flex-col items-center justify-center text-gray-500">
@@ -266,7 +317,44 @@ function ProductDetail() {
                   No Image Available
                 </div>
               )}
+
+              {selectedImage && (
+                <div className="absolute bottom-4 right-4 bg-white/90 text-gray-700 px-3 py-2 rounded-full text-xs font-semibold flex items-center gap-1 shadow">
+                  <ZoomIn size={14} />
+                  Hover to zoom
+                </div>
+              )}
             </div>
+
+            {productImages.length > 0 && (
+              <div className="mt-4">
+                <p className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                  <Image size={16} />
+                  Product Gallery
+                </p>
+
+                <div className="grid grid-cols-4 sm:grid-cols-5 gap-3">
+                  {productImages.map((image, index) => (
+                    <button
+                      key={index}
+                      type="button"
+                      onClick={() => setSelectedImage(image)}
+                      className={`h-20 rounded-xl overflow-hidden border transition ${
+                        selectedImage === image
+                          ? "border-blue-600 ring-2 ring-blue-100"
+                          : "border-gray-200 hover:border-blue-300"
+                      }`}
+                    >
+                      <img
+                        src={image}
+                        alt={`${product.name} ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="flex flex-col justify-center">
@@ -618,6 +706,7 @@ function ProductDetail() {
 
       <Footer />
       <FloatingWhatsAppButton />
+      <MobileBottomNav />
     </div>
   );
 }
